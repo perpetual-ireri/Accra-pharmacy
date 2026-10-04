@@ -177,6 +177,49 @@ th { background:#f5f8fb;font-size:11px;text-transform:uppercase;letter-spacing:.
 
 .viability-status{font-size:11px;font-weight:900}
 </style>
+
+<style id="accra-v14-css">
+.v14-badge{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border-radius:999px;font-size:11px;font-weight:900;background:#f2f7ea;color:#4F7019;border:1px solid #d7e6c8}
+.v14-cardgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.v14-actioncard{padding:18px;text-align:left;border:1px solid var(--line);border-radius:16px;background:#fff;min-height:118px;cursor:pointer;box-shadow:0 8px 18px rgba(25,55,83,.05)}
+.v14-actioncard:hover{border-color:#9fba8d;box-shadow:0 10px 24px rgba(79,112,25,.10);transform:translateY(-1px)}
+.v14-card-accent{border-top:4px solid #4F7019!important}
+.v14-card-accent-red{border-top-color:#ED1C24!important}
+.v14-formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.v14-formgrid.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+.v14-field{display:flex;flex-direction:column}
+.v14-help{font-size:11px;color:var(--muted);line-height:1.45;margin-top:6px}
+.v14-search{margin-bottom:14px}
+.v14-list{display:flex;flex-direction:column;gap:9px}
+.v14-list-item{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;border:1px solid var(--line);padding:14px;border-radius:14px;background:#fff}
+.v14-list-main{min-width:0}
+.v14-list-main strong{display:block;font-size:14px}
+.v14-list-main small{display:block;color:var(--muted);margin-top:4px;line-height:1.45}
+.v14-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.v14-empty{padding:28px;text-align:center;color:var(--muted);border:1px dashed #cfd9e1;border-radius:14px;background:#fbfcfd}
+.v14-stepbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.v14-step{padding:8px 10px;border-radius:999px;background:#eef3eb;color:#4F7019;font-size:11px;font-weight:900}
+.v14-step.active{background:#4F7019;color:#fff}
+.v14-step.done{background:#e8f3ed;color:#2d6b44}
+.v14-audience{background:linear-gradient(135deg,#edf7e7,#fff);border:2px solid #97b876}
+.v14-audience .small{color:#4F7019!important;font-weight:900}
+.v14-warning{background:#fff7e6;border:1px solid #efd39c;color:#6a4d12;border-radius:12px;padding:12px;font-size:12px;line-height:1.5}
+.v14-success{background:#edf8f2;border:1px solid #b8dfca;color:#26653f;border-radius:12px;padding:12px;font-size:12px;line-height:1.5}
+.v14-danger{background:#fff0f1;border:1px solid #e1a9ae;color:#8a2f39;border-radius:12px;padding:12px;font-size:12px;line-height:1.5}
+.v14-table-wrap{overflow:auto}
+.v14-table{width:100%;border-collapse:collapse;background:#fff}
+.v14-table th,.v14-table td{padding:10px 11px;border-bottom:1px solid var(--line);text-align:left;font-size:11px;vertical-align:top}
+.v14-table th{background:#f5f8fb;text-transform:uppercase;letter-spacing:.04em;font-size:10px}
+.v14-inline-check{display:inline-flex;align-items:center;gap:8px;font-size:12px}
+.v14-subtle{font-size:11px;color:var(--muted)}
+.v14-count{font-size:12px;font-weight:1000;color:#4F7019}
+.v14-pending{color:#9a6b00;font-weight:1000}
+.v14-approved{color:#2e734b;font-weight:1000}
+.v14-rejected{color:#a33b45;font-weight:1000}
+@media(max-width:920px){.v14-cardgrid{grid-template-columns:1fr 1fr}.v14-formgrid.three{grid-template-columns:1fr 1fr}}
+@media(max-width:620px){.v14-cardgrid,.v14-formgrid,.v14-formgrid.three{grid-template-columns:1fr}.v14-list-item{flex-direction:column}}
+</style>
+
 </head>
 <body>
 <div id="app"></div>
@@ -671,8 +714,1205 @@ function v6Refresh(){V6_STORE.refresh();alert('Refresh signal generated for all 
 function logout(){state={repName:'',specialty:null,candidates:[],selected:[],session:null,currentIndex:0,v6:{screen:'welcome',history:[],role:null,user:null,editProduct:null}};v6Render()}
 
 // Start through the additive V6 layer, while keeping the original concept beneath it.
-v6Render();
+/* V14 overrides boot the platform below. */
 
+/* ==========================================================
+   ACCRA Pharmacy Medical Rep Platform — V14 Easy-Open Layer
+   Keeps the single-file Chrome framework.
+   Uses localStorage for persistence on THIS browser/device.
+   No Lovable, no server required to open.
+   ========================================================== */
+
+const V14_STORE_KEY = "accra_v14_store_20260929";
+const V14_SOURCE_HCP = [];
+const V14_SOURCE_PHARMACIES = [];
+const V14_PRODUCT_NAMES = ["NERVICRA CAPSULES", "REJOIN TABLETS", "ULTRA FLEX TABLETS", "ULTRA FLEX-D TABLETS", "TRITRIS TABLETS", "ENZOKAP TABLETS", "ENZOKAP FORTE TABLETS", "PREBOTAC TABLETS", "PREBOTAC SACHET", "LANVOR (SUNSCREEN LOTION)", "SALICRA SYR 200ML", "SALICRA TABLET", "ARC-B TABLETS", "ARC-D3 DROPS 30ML", "ARC-D3 CAPSULES", "TAMIN E CAPSULES", "NEUROACCRA FORTE TABLETS", "YURIMAX SACHETS", "WAFERON SYRUP", "TOVETIN TABLETS", "UP-2-HEMA", "DIAGE-FIT ANTACID", "NEO-VIT DROP", "ARC OMEGA", "TOVETIN SYRUP"];
+
+const V14_MAPPING_ADDITIONS = {
+  "Orthopaedic Surgery": ["ENZOKAP TABLETS"],
+  "Obstetrics & Gynaecology": [
+    "YURIMAX SACHETS","SALICRA SYR 200ML","SALICRA TABLET",
+    "WAFERON SYRUP","UP-2-HEMA","ARC-D3 CAPSULES"
+  ]
+};
+
+const V14_PRIORITIES = JSON.parse(JSON.stringify(PRIORITIES || {}));
+V14_PRIORITIES["Orthopaedic Surgery"] = [...new Set([
+  ...(V14_PRIORITIES["Orthopaedic Surgery"] || []),
+  // ENZOKAP is added as a mapped product; existing matrix priorities remain intact.
+])];
+
+function v14DefaultStore(){
+  return {
+    version:1,
+    users:[],
+    reports:[],
+    hcps:[...V14_SOURCE_HCP],
+    pharmacies:[...V14_SOURCE_PHARMACIES],
+    hcpRequests:[],
+    pharmacyRequests:[],
+    extraProducts:[],
+    mappings:{},
+    extraSpecialties:[],
+    viabilityOverrides:{},
+    systemDisabled:false,
+    lastUpdated:new Date().toISOString()
+  };
+}
+
+function v14NormalizeUsername(v){
+  return String(v || "").trim().toLowerCase().replace(/\s+/g,"");
+}
+function v14NormalizeEmail(v){
+  return String(v || "").trim().toLowerCase();
+}
+function v14NormalizeText(v){
+  return String(v || "").trim().toLowerCase().replace(/\s+/g," ");
+}
+function v14Id(prefix){
+  return prefix+"-"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,7);
+}
+function v14Read(key,fallback){
+  try{
+    const raw=localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  }catch(e){ return fallback; }
+}
+function v14Write(db){
+  db.lastUpdated=new Date().toISOString();
+  try{
+    localStorage.setItem(V14_STORE_KEY,JSON.stringify(db));
+    localStorage.setItem("accra_v14_last_write",db.lastUpdated);
+    return true;
+  }catch(e){
+    alert("The browser could not save platform data. Please use Chrome and allow site storage for this file.");
+    return false;
+  }
+}
+function v14MigrateOldData(db){
+  if(db.users && db.users.length) return db;
+  const old=v14Read("accra_v6_users",{});
+  Object.keys(old || {}).forEach(k=>{
+    const u=old[k]||{};
+    const username=v14NormalizeUsername(u.username || u.name);
+    if(!username) return;
+    if(!db.users.some(x=>x.username===username)){
+      db.users.push({
+        id:v14Id("USR"),
+        fullName:u.name || username,
+        username,
+        email:v14NormalizeEmail(u.email || ""),
+        role:u.superAdmin ? "super_admin" : (u.role==="admin" ? "admin":"rep"),
+        password:u.password || "",
+        active:!u.disabled,
+        mustSetPassword:!u.password,
+        createdAt:new Date().toISOString()
+      });
+    }
+  });
+  const oldReports=v14Read("accra_v6_reports",[]);
+  if(oldReports.length && !db.reports.length){
+    db.reports=oldReports.map(r=>({
+      id:v14Id("RPT"),
+      rep:r.rep,
+      customerType:"Legacy",
+      customerId:"",
+      customerName:"",
+      facility:"",
+      location:"",
+      specialty:r.specialty,
+      products:r.products||[],
+      customerSource:"Legacy",
+      startedAt:r.startedAt,
+      endedAt:r.endedAt,
+      durationSec:r.durationSec||0,
+      outcome:"Legacy report",
+      notes:"Migrated from previous ACCRA easy-open framework."
+    }));
+  }
+  db.extraProducts=v14Read("accra_v6_extra_products",[]);
+  db.mappings=v14Read("accra_v6_mappings",{});
+  db.extraSpecialties=v14Read("accra_v6_extra_specialties",[]);
+  db.viabilityOverrides=v14Read("accra_v6_viability_overrides",{});
+  db.systemDisabled=v14Read("accra_v6_disabled",false);
+  return db;
+}
+function v14GetDB(){
+  let db=v14Read(V14_STORE_KEY,null);
+  if(!db){
+    db=v14MigrateOldData(v14DefaultStore());
+  }
+  // Ensure Marley exists as Super Admin in every fresh/migrated copy.
+  const su=v14NormalizeUsername("marley.kanyingi");
+  if(!db.users.some(u=>v14NormalizeUsername(u.username)===su)){
+    db.users.unshift({
+      id:"SUPER-MARLEY-KANYINGI",
+      fullName:"Marley Kanyingi",
+      username:"marley.kanyingi",
+      email:"",
+      role:"super_admin",
+      password:"",
+      active:true,
+      mustSetPassword:true,
+      createdAt:new Date().toISOString()
+    });
+  }else{
+    const m=db.users.find(u=>v14NormalizeUsername(u.username)===su);
+    if(m) m.role="super_admin";
+  }
+  v14Write(db);
+  return db;
+}
+let V14_DB=v14GetDB();
+function v14Sync(){ V14_DB=v14GetDB(); return V14_DB; }
+window.addEventListener("storage",()=>{ v14Sync(); if(V14_STATE.screen!=="detail") v14Render(); });
+
+function v14FindUser(identifier){
+  const db=v14Sync();
+  const s=String(identifier||"").trim();
+  const uname=v14NormalizeUsername(s), email=v14NormalizeEmail(s);
+  return db.users.find(u=>v14NormalizeUsername(u.username)===uname || (email && v14NormalizeEmail(u.email)===email)) || null;
+}
+function v14IsSuper(){ return V14_STATE.user?.role==="super_admin"; }
+function v14IsAdmin(){ return v14IsSuper() || V14_STATE.user?.role==="admin"; }
+
+function v14AllProducts(){
+  const db=v14Sync();
+  const map=new Map((PRODUCTS||[]).map(p=>[p.name.toUpperCase(),{...p}]));
+  (db.extraProducts||[]).forEach(p=>{
+    if(!p?.name) return;
+    const key=p.name.toUpperCase();
+    map.set(key,{...(map.get(key)||{}),...p});
+  });
+  // Guarantee the 25 approved ACCRA names are present.
+  V14_PRODUCT_NAMES.forEach(n=>{
+    if(!map.has(n.toUpperCase())) map.set(n.toUpperCase(),{name:n,need:"ACCRA Pharmacy product",specialties:[],image:null,imageType:null,note:{headline:"",detail:[]}});
+  });
+  return [...map.values()];
+}
+function v14Product(name){ return v14AllProducts().find(p=>p.name.toUpperCase()===String(name).toUpperCase())||null; }
+
+function v14AllSpecialties(){
+  const db=v14Sync();
+  const map=new Map((SPECIALTIES||[]).map(s=>[v14NormalizeText(s.name),{...s}]));
+  (db.extraSpecialties||[]).forEach(s=>{
+    const name=typeof s==="string"?s:s.name;
+    if(name && !map.has(v14NormalizeText(name))) map.set(v14NormalizeText(name),{name});
+  });
+  const ov=db.viabilityOverrides||{};
+  return [...map.values()].map(s=>{
+    const k=v14NormalizeText(s.name);
+    return Object.prototype.hasOwnProperty.call(ov,k) ? {...s,notViable:!!ov[k]} : s;
+  });
+}
+function v14ViableSpecialties(){
+  return v14AllSpecialties().filter(s=>!s.notViable && !/NOT VIABLE SPECIALTIES/i.test(s.name));
+}
+function v14NotViableSpecialties(){
+  return v14AllSpecialties().filter(s=>s.notViable);
+}
+function v14Arg(s){
+  return esc(JSON.stringify(String(s)));
+}
+function v14Top(title){
+  return `<header class="top">
+    <div class="accra-logo-lockup accra-top-lockup">
+      <img src="${ACCRA_LOGO_IMG}" alt="Accra Pharmacy Ltd" class="accra-logo-exact top-logo">
+      <div class="accra-logo-name">Accra Pharmacy Ltd</div>
+    </div>
+    <div class="top-actions"><button onclick="v14Back()">← Back</button></div>
+  </header>`;
+}
+function v14Steps(active){
+  const labels=["1 Specialty","2 Customer","3 Products","4 Detailing","5 Report"];
+  return `<div class="v14-stepbar">${labels.map((x,i)=>`<span class="v14-step ${i+1===active?'active':i+1<active?'done':''}">${x}</span>`).join("")}</div>`;
+}
+
+const V14_STATE={
+  screen:"welcome",
+  user:null,
+  roleChoice:null,
+  selectedSpecialty:null,
+  audience:null,
+  customer:null,
+  candidates:[],
+  selected:[],
+  session:null,
+  currentIndex:0,
+  startedAt:null,
+  editProduct:null,
+  editRequest:null,
+  requestType:null
+};
+
+function v14Render(){
+  switch(V14_STATE.screen){
+    case "welcome": return v14Welcome();
+    case "login": return v14Login();
+    case "setpass": return v14SetPass();
+    case "mr": return v14MR();
+    case "customer": return v14Customer();
+    case "hpcs": return v14HCPs();
+    case "otherHcp": return v14OtherHCP();
+    case "pharmacies": return v14Pharmacies();
+    case "otherPharmacy": return v14OtherPharmacy();
+    case "products": return v14Products();
+    case "detail": return v14Detail();
+    case "complete": return v14Complete();
+    case "admin": return v14Admin();
+    case "users": return v14Users();
+    case "createUser": return v14CreateUser();
+    case "hcppending": return v14ApprovalQueues();
+    case "directories": return v14Directories();
+    case "reports": return v14Reports();
+    case "adminProducts": return v14AdminProducts();
+    case "adminForm": return v14AdminForm();
+    case "mapping": return v14Mapping();
+    case "specialties": return v14Specialties();
+    case "viability": return v14Viability();
+    case "system": return v14System();
+    default: V14_STATE.screen="welcome"; return v14Welcome();
+  }
+}
+
+function v14Welcome(){
+  document.getElementById("app").innerHTML=`<section class="splash">
+    <div class="splash-card">
+      <div class="accra-logo-lockup">
+        <img src="${ACCRA_LOGO_IMG}" alt="Accra Pharmacy Ltd" class="accra-logo-exact splash-logo">
+        <div class="accra-logo-name">Accra Pharmacy Ltd</div>
+      </div>
+      <div class="splash-sub" style="margin-top:14px">Select your access</div>
+      <div class="role-grid">
+        <button class="role-card" onclick="v14Choose('rep')"><div class="role-icon">🩺</div><h2>Medical Rep</h2><p>Sign in and start with the doctor's specialty.</p></button>
+        <button class="role-card" onclick="v14Choose('admin')"><div class="role-icon">⚙️</div><h2>Admin</h2><p>Manage users, HCPs, pharmacies, products, mappings and reports.</p></button>
+      </div>
+    </div>
+  </section>`;
+}
+function v14Choose(role){ V14_STATE.roleChoice=role; V14_STATE.screen="login"; v14Render(); }
+
+function v14Login(){
+  const label=V14_STATE.roleChoice==="admin"?"Admin":"Medical Rep";
+  const last=v14Read("accra_v14_last_username","");
+  document.getElementById("app").innerHTML=`${v14Top(label+" Login")}
+    <main class="page"><div class="card form-card">
+      <div class="section-head"><div><h1>${label} Login</h1><p>Use your registered username or email.</p></div><span class="v14-badge">Persistent Accounts</span></div>
+      <label>Username or Email</label>
+      <input id="v14LoginId" type="text" placeholder="e.g. rep.john or email@example.com" value="${esc(last)}" autocomplete="username">
+      <div style="margin-top:14px"><label>Password</label><input id="v14LoginPass" type="password" placeholder="Password" autocomplete="current-password"></div>
+      <div class="form-actions">
+        <button class="btn" onclick="v14Back()">← Back</button>
+        <div class="v14-actions"><button class="btn" onclick="v14StartSetPass()">Set / Change Password</button><button class="btn primary" onclick="v14DoLogin()">Log in</button></div>
+      </div>
+      <div class="v14-help">Usernames are unique without regard to capital letters or spaces. Accounts are saved in this browser's persistent storage.</div>
+    </div></main>`;
+}
+function v14StartSetPass(){
+  const id=document.getElementById("v14LoginId").value.trim();
+  const u=v14FindUser(id);
+  if(!u) return alert("Account not found. Ask the Super Admin to create the account first.");
+  V14_STATE.pendingPasswordUserId=u.id;
+  V14_STATE.screen="setpass"; v14Render();
+}
+function v14SetPass(){
+  const db=v14Sync();
+  const u=db.users.find(x=>x.id===V14_STATE.pendingPasswordUserId);
+  if(!u){ V14_STATE.screen="login"; return v14Render(); }
+  document.getElementById("app").innerHTML=`${v14Top("Set Password")}
+    <main class="page"><div class="card form-card">
+      <div class="section-head"><div><h1>Set / Change Password</h1><p>${esc(u.fullName)} · @${esc(u.username)}</p></div></div>
+      <label>New Password</label><input id="v14P1" type="password">
+      <div style="margin-top:14px"><label>Confirm Password</label><input id="v14P2" type="password"></div>
+      <div class="form-actions"><button class="btn" onclick="v14Back()">← Back</button><button class="btn primary" onclick="v14SavePass()">Save Password</button></div>
+    </div></main>`;
+}
+function v14SavePass(){
+  const a=document.getElementById("v14P1").value,b=document.getElementById("v14P2").value;
+  if(a.length<4) return alert("Use at least 4 characters.");
+  if(a!==b) return alert("Passwords do not match.");
+  const db=v14Sync(),u=db.users.find(x=>x.id===V14_STATE.pendingPasswordUserId);
+  if(!u) return alert("Account not found.");
+  u.password=a; u.mustSetPassword=false; u.active=true;
+  if(v14Write(db)){ alert("Password saved successfully."); V14_STATE.pendingPasswordUserId=null; V14_STATE.roleChoice=u.role==="rep"?"rep":"admin"; v14LoginWithUser(u); }
+}
+function v14DoLogin(){
+  const id=document.getElementById("v14LoginId").value.trim(), pass=document.getElementById("v14LoginPass").value;
+  const u=v14FindUser(id);
+  if(!u) return alert("Account not found. Ask the Super Admin to create the account.");
+  localStorage.setItem("accra_v14_last_username",id);
+  if(!u.active) return alert("This account is disabled. Kindly contact the Super Admin.");
+  if(V14_DB.systemDisabled && u.role!=="super_admin") return v14Blocked();
+  if(u.role==="rep" && V14_STATE.roleChoice!=="rep") return alert("Choose Medical Rep access for this account.");
+  if((u.role==="admin"||u.role==="super_admin") && V14_STATE.roleChoice!=="admin") return alert("Choose Admin access for this account.");
+  if(u.mustSetPassword || !u.password) return alert("Please use Set / Change Password to set your password first.");
+  if(u.password!==pass) return alert("Incorrect password.");
+  v14LoginWithUser(u);
+}
+function v14LoginWithUser(u){
+  V14_STATE.user={...u}; V14_STATE.screen=u.role==="rep"?"mr":"admin";
+  V14_STATE.selectedSpecialty=null; V14_STATE.audience=null; V14_STATE.customer=null; V14_STATE.selected=[]; V14_STATE.candidates=[];
+  v14Render();
+}
+function v14Blocked(){
+  document.getElementById("app").innerHTML=`<section class="splash"><div class="splash-card">
+    <div class="accra-logo-lockup"><img src="${ACCRA_LOGO_IMG}" class="accra-logo-exact splash-logo" alt="Accra Pharmacy Ltd"><div class="accra-logo-name">Accra Pharmacy Ltd</div></div>
+    <h1 style="margin-top:26px">System Temporarily Disabled</h1>
+    <p class="splash-sub">Access has been disabled by the Super Admin. Kindly contact admin.</p>
+    <button class="btn-main" onclick="V14_STATE.screen='welcome';v14Render()">← Back</button>
+  </div></section>`;
+}
+
+function v14MR(){
+  const viable=v14ViableSpecialties(),tail=v14NotViableSpecialties();
+  document.getElementById("app").innerHTML=`${v14Top("Medical Rep Dashboard")}
+    <main class="page">
+      <div class="card" style="padding:18px 20px;margin-bottom:16px">
+        <div style="font-size:12px;color:var(--muted)">MEDICAL REP</div>
+        <div style="font-size:23px;font-weight:1000;margin-top:3px">${esc(V14_STATE.user?.fullName||"")}</div>
+        <div class="v14-help" style="margin-top:5px">Choose the doctor's specialty or Pharmacist audience. Products remain hidden until you choose.</div>
+      </div>
+      ${v14Steps(1)}
+      <div class="section-head"><div><h1>Doctor's Specialty</h1><p>Select a clinical specialty.</p></div></div>
+      <div class="specialty-grid">
+        <button class="specialty-btn v14-audience" onclick="v14SelectAudience('Pharmacist')">💊 Pharmacist<span class="small">Full ACCRA portfolio · all 25 products</span></button>
+        ${viable.map(s=>`<button class="specialty-btn" onclick="v14SelectSpecialty(${v14Arg(s.name)})">${esc(s.name)}<span class="small">Open mapped products</span></button>`).join("")}
+      </div>
+      <div class="tail"><h3>Not Viable / Limited Portfolio Fit</h3><div class="tail-row">
+        ${tail.map(s=>`<button class="specialty-btn" onclick="alert(${v14Arg(s.name+"\\n\\nThis specialty is currently in the Not Viable / Limited Portfolio Fit section. No product selection is opened.")})">${esc(s.name)}</button>`).join("")}
+      </div></div>
+    </main>`;
+}
+function v14SelectAudience(a){
+  V14_STATE.audience=a; V14_STATE.selectedSpecialty=null; V14_STATE.customer=null; V14_STATE.selected=[]; 
+  V14_STATE.candidates=v14AllProducts(); V14_STATE.screen="customer"; v14Render();
+}
+function v14SelectSpecialty(name){
+  V14_STATE.selectedSpecialty=name; V14_STATE.audience=null; V14_STATE.customer=null; V14_STATE.selected=[];
+  V14_STATE.candidates=v14ProductCandidates(name);
+  V14_STATE.screen="customer"; v14Render();
+}
+function v14ProductCandidates(name){
+  const db=v14Sync(); if(name==="Pharmacist") return v14AllProducts();
+  const mapOverride=db.mappings||{};
+  const additions=V14_MAPPING_ADDITIONS[name]||[];
+  const selectedNames=new Set((additions).map(x=>x.toUpperCase()));
+  return v14AllProducts().filter(p=>{
+    const mapped=(mapOverride[p.name.toUpperCase()]||p.specialties||[]).some(x=>v14NormalizeText(x)===v14NormalizeText(name));
+    return mapped || selectedNames.has(p.name.toUpperCase());
+  }).sort((a,b)=>{
+    const pri=V14_PRIORITIES[name]||[];
+    const ra=pri.findIndex(x=>x.toUpperCase()===a.name.toUpperCase());
+    const rb=pri.findIndex(x=>x.toUpperCase()===b.name.toUpperCase());
+    return (ra<0?999:ra)-(rb<0?999:rb);
+  });
+}
+
+function v14Customer(){
+  const context=V14_STATE.audience?`Audience: <strong>${esc(V14_STATE.audience)}</strong>`:`Specialty: <strong>${esc(V14_STATE.selectedSpecialty)}</strong>`;
+  document.getElementById("app").innerHTML=`${v14Top("Customer Selection")}
+    <main class="page">${v14Steps(2)}
+      <div class="card" style="padding:18px 20px;margin-bottom:16px"><div style="font-size:13px">${context}</div><div class="v14-help">Select who you are seeing before choosing products.</div></div>
+      <div class="v14-cardgrid">
+        <button class="v14-actioncard v14-card-accent" onclick="V14_STATE.screen='hpcs';v14Render()"><div style="font-size:30px">👨‍⚕️</div><h3>Doctor / HCP</h3><p>Search the approved HCP list${V14_STATE.audience==="Pharmacist"?" or select a pharmacist/healthcare professional.":""}</p></button>
+        <button class="v14-actioncard v14-card-accent v14-card-accent-red" onclick="V14_STATE.screen='pharmacies';v14Render()"><div style="font-size:30px">🏥</div><h3>Pharmacy / Pharmacist</h3><p>Select an approved pharmacy or request a new pharmacy.</p></button>
+      </div>
+    </main>`;
+}
+
+function v14HCPs(){
+  const db=v14Sync(),spec=V14_STATE.selectedSpecialty;
+  let rows=(db.hcps||[]).filter(x=>x.status==="approved");
+  if(spec) rows=rows.filter(x=>v14NormalizeText(x.specialty)===v14NormalizeText(spec));
+  const q=(document.getElementById("v14HcpSearch")?.value||"").trim().toLowerCase();
+  if(q) rows=rows.filter(x=>[x.name,x.facility,x.location,x.specialty,x.subSpecialty,x.cadre,x.phone].some(v=>String(v||"").toLowerCase().includes(q)));
+  document.getElementById("app").innerHTML=`${v14Top("Doctor / HCP Selection")}
+    <main class="page">${v14Steps(2)}
+      <div class="section-head"><div><h1>Doctor / HCP</h1><p>${spec?`Approved HCPs under ${esc(spec)}`:"Search the approved HCP directory"}</p></div><span class="v14-count">${rows.length} shown</span></div>
+      <input id="v14HcpSearch" class="v14-search" type="search" placeholder="Search name, facility, location, specialty or phone" oninput="v14HCPs()" value="${esc(q)}">
+      <div class="v14-actions" style="margin-bottom:14px"><button class="btn primary" onclick="V14_STATE.screen='otherHcp';v14Render()">+ OTHER HCP / NOT ON LIST</button><button class="btn" onclick="V14_STATE.screen='customer';v14Render()">← Customer Type</button></div>
+      ${rows.length?`<div class="v14-list">${rows.map(x=>`<div class="v14-list-item">
+        <div class="v14-list-main"><strong>${esc(x.name)}</strong><small>${esc(x.facility||"")} · ${esc(x.location||"")}</small><small>${esc(x.specialty||"")}${x.subSpecialty&&x.subSpecialty!=="NONE"?` · ${esc(x.subSpecialty)}`:""}${x.cadre?` · ${esc(x.cadre)}`:""}</small></div>
+        <button class="btn primary" onclick="v14SelectHcp(${v14Arg(x.id)})">Select</button>
+      </div>`).join("")}</div>`:
+      `<div class="v14-empty">No approved HCPs are currently registered${spec?` for ${esc(spec)}`:""}.<br><br>Use <strong>OTHER HCP / NOT ON LIST</strong> to submit an approval request.</div>`}
+    </main>`;
+}
+function v14SelectHcp(id){
+  const x=v14Sync().hcps.find(h=>h.id===id); if(!x)return alert("HCP not found.");
+  V14_STATE.customer={type:"Doctor / HCP",id:x.id,name:x.name,facility:x.facility,location:x.location,source:"Approved Master",specialty:x.specialty,subSpecialty:x.subSpecialty};
+  V14_STATE.screen="products"; V14_STATE.selected=[]; V14RenderProducts();
+}
+function V14RenderProducts(){ v14Render(); }
+
+function v14OtherHCP(){
+  const specs=v14ViableSpecialties();
+  document.getElementById("app").innerHTML=`${v14Top("Other HCP Request")}
+  <main class="page">${v14Steps(2)}
+    <div class="card form-card">
+      <div class="section-head"><div><h1>OTHER HCP / NOT ON LIST</h1><p>This request will be sent to Admin for approval. You can still continue this current call.</p></div><span class="v14-badge">PENDING APPROVAL</span></div>
+      <div class="v14-formgrid">
+        <div class="v14-field"><label>HCP Name *</label><input id="v14HName" type="text"></div>
+        <div class="v14-field"><label>Facility / Institution *</label><input id="v14HFacility" type="text"></div>
+        <div class="v14-field"><label>Specialty *</label><select id="v14HSpec">${specs.map(s=>`<option ${v14NormalizeText(s.name)===v14NormalizeText(V14_STATE.selectedSpecialty||"")?"selected":""}>${esc(s.name)}</option>`).join("")}</select></div>
+        <div class="v14-field"><label>Sub-Specialty</label><input id="v14HSub" type="text"></div>
+        <div class="v14-field"><label>Location</label><input id="v14HLoc" type="text"></div>
+        <div class="v14-field"><label>Phone</label><input id="v14HPhone" type="text"></div>
+      </div>
+      <div style="margin-top:14px"><label>Notes</label><textarea id="v14HNotes" rows="3" placeholder="Any useful identification details"></textarea></div>
+      <div class="form-actions"><button class="btn" onclick="V14_STATE.screen='hpcs';v14Render()">← Back</button><button class="btn primary" onclick="v14SubmitOtherHcp()">Submit & Continue</button></div>
+    </div>
+  </main>`;
+}
+function v14DuplicateHcp(candidate,ignoreId){
+  const db=v14Sync();
+  return db.hcps.concat(db.hcpRequests.filter(r=>r.status==="pending")).some(x=>{
+    if(ignoreId && x.id===ignoreId)return false;
+    return v14NormalizeText(x.name)===v14NormalizeText(candidate.name) &&
+      v14NormalizeText(x.facility)===v14NormalizeText(candidate.facility) &&
+      v14NormalizeText(x.phone)===v14NormalizeText(candidate.phone);
+  });
+}
+function v14SubmitOtherHcp(){
+  const candidate={name:document.getElementById("v14HName").value.trim(),facility:document.getElementById("v14HFacility").value.trim(),
+    specialty:document.getElementById("v14HSpec").value.trim(),subSpecialty:document.getElementById("v14HSub").value.trim(),
+    location:document.getElementById("v14HLoc").value.trim(),phone:document.getElementById("v14HPhone").value.trim(),notes:document.getElementById("v14HNotes").value.trim()};
+  if(!candidate.name||!candidate.facility)return alert("HCP Name and Facility / Institution are required.");
+  if(v14DuplicateHcp(candidate))return alert("A matching HCP already exists or is already pending approval. Please search the list.");
+  const db=v14Sync(),req={id:v14Id("HCPREQ"),...candidate,status:"pending",submittedBy:V14_STATE.user.fullName,submittedAt:new Date().toISOString()};
+  db.hcpRequests.unshift(req);
+  if(!v14Write(db))return;
+  V14_STATE.customer={type:"Doctor / HCP",id:req.id,name:req.name,facility:req.facility,location:req.location,source:"Other / Pending",specialty:req.specialty,subSpecialty:req.subSpecialty};
+  V14_STATE.selectedSpecialty=req.specialty; V14_STATE.audience=null; V14_STATE.selected=[];
+  V14_STATE.candidates=v14ProductCandidates(req.specialty);
+  alert("HCP submitted as PENDING APPROVAL. You may continue the current detailing call.");
+  V14_STATE.screen="products"; v14Render();
+}
+
+function v14Pharmacies(){
+  const db=v14Sync(),q=(document.getElementById("v14PhSearch")?.value||"").trim().toLowerCase();
+  let rows=(db.pharmacies||[]).filter(x=>x.status==="approved");
+  if(q) rows=rows.filter(x=>[x.name,x.type,x.owner,x.phone,x.email,x.location,x.county,x.town,x.distributor].some(v=>String(v||"").toLowerCase().includes(q)));
+  document.getElementById("app").innerHTML=`${v14Top("Pharmacy Selection")}
+    <main class="page">${v14Steps(2)}
+      <div class="section-head"><div><h1>Pharmacy / Pharmacist</h1><p>Approved pharmacy directory${V14_STATE.selectedSpecialty?` · Call context: ${esc(V14_STATE.selectedSpecialty)}`:""}</p></div><span class="v14-count">${rows.length} shown</span></div>
+      <input id="v14PhSearch" class="v14-search" type="search" placeholder="Search pharmacy, town, county, owner, phone or distributor" oninput="v14Pharmacies()" value="${esc(q)}">
+      <div class="v14-actions" style="margin-bottom:14px"><button class="btn primary" onclick="V14_STATE.screen='otherPharmacy';v14Render()">+ OTHER PHARMACY / NOT ON LIST</button><button class="btn" onclick="V14_STATE.screen='customer';v14Render()">← Customer Type</button></div>
+      ${rows.length?`<div class="v14-list">${rows.map(x=>`<div class="v14-list-item"><div class="v14-list-main"><strong>${esc(x.name)}</strong><small>${esc(x.type||"Pharmacy")} · ${esc(x.location||"")}, ${esc(x.town||"")}, ${esc(x.county||"")}</small><small>${esc(x.owner||"")} ${x.phone?`· ${esc(x.phone)}`:""} ${x.distributor?`· ${esc(x.distributor)}`:""}</small></div><button class="btn primary" onclick="v14SelectPharmacy(${v14Arg(x.id)})">Select</button></div>`).join("")}</div>`:
+      `<div class="v14-empty">No approved pharmacies are currently registered.<br><br>Use <strong>OTHER PHARMACY / NOT ON LIST</strong> to submit an approval request.</div>`}
+    </main>`;
+}
+function v14SelectPharmacy(id){
+  const x=v14Sync().pharmacies.find(p=>p.id===id);if(!x)return alert("Pharmacy not found.");
+  V14_STATE.customer={type:"Pharmacy",id:x.id,name:x.name,facility:x.name,location:[x.location,x.town,x.county].filter(Boolean).join(", "),source:"Approved Master",specialty:V14_STATE.selectedSpecialty||V14_STATE.audience||"Pharmacy Call",subSpecialty:""};
+  V14_STATE.selected=[]; V14_STATE.candidates=V14_STATE.audience==="Pharmacist"?v14AllProducts():v14ProductCandidates(V14_STATE.selectedSpecialty);
+  V14_STATE.screen="products";v14Render();
+}
+function v14OtherPharmacy(){
+  document.getElementById("app").innerHTML=`${v14Top("Other Pharmacy Request")}
+  <main class="page">${v14Steps(2)}
+    <div class="card form-card"><div class="section-head"><div><h1>OTHER PHARMACY / NOT ON LIST</h1><p>Submit the pharmacy for Admin approval. The current call can continue as a pending customer.</p></div><span class="v14-badge">PENDING APPROVAL</span></div>
+      <div class="v14-formgrid">
+        <div class="v14-field"><label>Pharmacy Name *</label><input id="v14PName" type="text"></div>
+        <div class="v14-field"><label>Pharmacy Type</label><input id="v14PType" type="text"></div>
+        <div class="v14-field"><label>Owner / Contact Person</label><input id="v14POwner" type="text"></div>
+        <div class="v14-field"><label>Phone</label><input id="v14PPhone" type="text"></div>
+        <div class="v14-field"><label>Email</label><input id="v14PEmail" type="email"></div>
+        <div class="v14-field"><label>Physical Location</label><input id="v14PLocation" type="text"></div>
+        <div class="v14-field"><label>County</label><input id="v14PCounty" type="text"></div>
+        <div class="v14-field"><label>Town</label><input id="v14PTown" type="text"></div>
+        <div class="v14-field"><label>Buying Distributor</label><input id="v14PDist" type="text"></div>
+      </div>
+      <div style="margin-top:14px"><label>Notes</label><textarea id="v14PNotes" rows="3"></textarea></div>
+      <div class="form-actions"><button class="btn" onclick="V14_STATE.screen='pharmacies';v14Render()">← Back</button><button class="btn primary" onclick="v14SubmitOtherPharmacy()">Submit & Continue</button></div>
+    </div>
+  </main>`;
+}
+function v14DuplicatePharmacy(candidate,ignoreId){
+  const db=v14Sync();
+  return db.pharmacies.concat(db.pharmacyRequests.filter(r=>r.status==="pending")).some(x=>{
+    if(ignoreId && x.id===ignoreId)return false;
+    return v14NormalizeText(x.name)===v14NormalizeText(candidate.name) &&
+      (v14NormalizeText(x.phone)===v14NormalizeText(candidate.phone) || (candidate.location && v14NormalizeText(x.location)===v14NormalizeText(candidate.location)));
+  });
+}
+function v14SubmitOtherPharmacy(){
+  const c={name:document.getElementById("v14PName").value.trim(),type:document.getElementById("v14PType").value.trim(),
+    owner:document.getElementById("v14POwner").value.trim(),phone:document.getElementById("v14PPhone").value.trim(),
+    email:document.getElementById("v14PEmail").value.trim(),location:document.getElementById("v14PLocation").value.trim(),
+    county:document.getElementById("v14PCounty").value.trim(),town:document.getElementById("v14PTown").value.trim(),
+    distributor:document.getElementById("v14PDist").value.trim(),notes:document.getElementById("v14PNotes").value.trim()};
+  if(!c.name)return alert("Pharmacy Name is required.");
+  if(v14DuplicatePharmacy(c))return alert("A matching pharmacy already exists or is pending approval. Please search the list.");
+  const db=v14Sync(),req={id:v14Id("PHREQ"),...c,status:"pending",submittedBy:V14_STATE.user.fullName,submittedAt:new Date().toISOString()};
+  db.pharmacyRequests.unshift(req);
+  if(!v14Write(db))return;
+  V14_STATE.customer={type:"Pharmacy",id:req.id,name:req.name,facility:req.name,location:[req.location,req.town,req.county].filter(Boolean).join(", "),source:"Other / Pending",specialty:V14_STATE.selectedSpecialty||V14_STATE.audience||"Pharmacy Call",subSpecialty:""};
+  V14_STATE.selected=[]; V14_STATE.candidates=V14_STATE.audience==="Pharmacist"?v14AllProducts():v14ProductCandidates(V14_STATE.selectedSpecialty);
+  alert("Pharmacy submitted as PENDING APPROVAL. You may continue the current call.");
+  V14_STATE.screen="products"; v14Render();
+}
+
+function v14Products(){
+  const pri=V14_PRIORITIES[V14_STATE.selectedSpecialty]||[];
+  const ps=V14_STATE.audience==="Pharmacist"?v14AllProducts():V14_STATE.candidates;
+  document.getElementById("app").innerHTML=`${v14Top("Product Selection")}
+    <main class="page">${v14Steps(3)}
+      <div class="section-head"><div><h1>${esc(V14_STATE.audience||V14_STATE.selectedSpecialty||"Products")}</h1>
+      <p>${V14_STATE.customer?`Customer: <strong>${esc(V14_STATE.customer.name)}</strong>`:"Customer not selected"} · Select a maximum of <strong>4 products</strong>.</p></div><div class="rep-chip">${V14_STATE.selected.length} / 4 selected</div></div>
+      <div class="product-grid">${ps.map(p=>{
+        const i=pri.findIndex(x=>x.toUpperCase()===p.name.toUpperCase());
+        const checked=V14_STATE.selected.includes(p.name);
+        return `<div class="product-card ${checked?'selected':''}">
+          <div class="priority-tag">${V14_STATE.audience==="Pharmacist"?"FULL PORTFOLIO":i>=0?"PRIORITY "+(i+1):"MAPPED PRODUCT"}</div>
+          <div class="product-name">${esc(p.name)}</div><div class="product-need">${esc(p.need||"ACCRA Pharmacy product")}</div>
+          <div class="check-row"><span style="font-size:11px;color:var(--muted)">${p.image?"Visual available":"Flyer pending"}</span>
+          <label style="margin:0;text-transform:none;letter-spacing:0;color:var(--ink);font-size:13px"><input class="check" type="checkbox" ${checked?"checked":""} onchange="v14ToggleProduct(${v14Arg(p.name)},this.checked)"> Select</label></div>
+        </div>`;
+      }).join("")}</div>
+      <div class="selected-bar"><div><div style="font-size:11px;opacity:.7;text-transform:uppercase;font-weight:900;margin-bottom:7px">Selected sequence</div><div class="chips">${V14_STATE.selected.length?V14_STATE.selected.map((x,i)=>`<span class="chip">${i+1} • ${esc(x)}</span>`).join(""):'<span style="font-size:12px;opacity:.7">No products selected</span>'}</div></div>
+      <div class="v14-actions"><button class="btn" onclick="V14_STATE.screen='customer';v14Render()">← Customer</button><button class="btn gold" ${V14_STATE.selected.length?'':'disabled'} onclick="v14StartDetail()">START MEDICAL DETAILING</button></div></div>
+    </main>`;
+}
+function v14ToggleProduct(name,checked){
+  if(checked){
+    if(V14_STATE.selected.length>=4){alert("Maximum 4 products can be selected.");return v14Render();}
+    if(!V14_STATE.selected.includes(name)) V14_STATE.selected.push(name);
+  }else V14_STATE.selected=V14_STATE.selected.filter(x=>x!==name);
+  const pri=V14_PRIORITIES[V14_STATE.selectedSpecialty]||[];
+  V14_STATE.selected.sort((a,b)=>{
+    const ra=pri.findIndex(x=>x.toUpperCase()===a.toUpperCase()),rb=pri.findIndex(x=>x.toUpperCase()===b.toUpperCase());
+    return (ra<0?999:ra)-(rb<0?999:rb);
+  });
+  v14Render();
+}
+function v14StartDetail(){
+  V14_STATE.session={
+    rep:V14_STATE.user.fullName,
+    specialty:V14_STATE.selectedSpecialty||V14_STATE.audience||"Pharmacist",
+    audience:V14_STATE.audience||"",
+    customer:{...V14_STATE.customer},
+    products:[...V14_STATE.selected],
+    startedAt:new Date().toISOString()
+  };
+  V14_STATE.startedAt=V14_STATE.session.startedAt;V14_STATE.currentIndex=0;V14_STATE.screen="detail";v14Render();
+}
+
+function v14Detail(){
+  const p=v14Product(V14_STATE.session.products[V14_STATE.currentIndex]), total=V14_STATE.session.products.length;
+  const visual=p&&p.image ? (p.imageType==="pdf"||String(p.image).startsWith("data:application/pdf")?
+    `<iframe src="${p.image}" title="${esc(p.name)} flyer" style="width:100%;height:100%;border:0;background:#fff"></iframe>`:
+    `<img src="${p.image}" alt="${esc(p.name)} flyer" onclick="v14OpenImage()">`) :
+    `<div class="flyer-empty"><h2>Information Temporarily Unavailable</h2>
+      <p><strong>The flyer for this Product is currently NOT AVAILABLE.</strong></p>
+      <p>We apologize for the inconvenience and appreciate your patience.</p>
+      <p>Kindly contact admin</p></div>`;
+  document.getElementById("app").innerHTML=`<div class="detail-shell v6-detailing">
+    <div class="detail-top"><button class="btn" onclick="V14_STATE.screen='products';v14Render()">← Back</button>
+      <div><strong>${esc(V14_STATE.session.customer?.name||V14_STATE.session.specialty)}</strong> <span style="color:var(--muted)"> • ${esc(p?.name||"Product")}</span></div>
+      <div class="progress">PRODUCT ${V14_STATE.currentIndex+1} OF ${total}</div></div>
+    <div class="detail-body"><div class="flyer">${visual}</div></div>
+    <div class="detail-foot"><div style="font-size:11px;color:var(--muted)">${esc(p?.name||"Product")} · ${esc(V14_STATE.session.specialty)}</div>
+      <div style="display:flex;gap:8px">${V14_STATE.currentIndex>0?'<button class="btn" onclick="v14PrevDetail()">← Previous</button>':''}${V14_STATE.currentIndex<total-1?'<button class="btn primary" onclick="v14NextDetail()">Next Product →</button>':'<button class="btn gold" onclick="v14EndDetail()">END DETAILING</button>'}</div></div>
+  </div>`;
+}
+function v14PrevDetail(){if(V14_STATE.currentIndex>0){V14_STATE.currentIndex--;v14Render();}}
+function v14NextDetail(){if(V14_STATE.currentIndex<V14_STATE.session.products.length-1){V14_STATE.currentIndex++;v14Render();}}
+function v14OpenImage(){const p=v14Product(V14_STATE.session.products[V14_STATE.currentIndex]);if(!p?.image)return;document.getElementById("modalImg").src=p.image;document.getElementById("imageModal").classList.add("open");}
+function v14EndDetail(){V14_STATE.session.endedAt=new Date().toISOString();V14_STATE.session.durationSec=durationSec(V14_STATE.session.startedAt,V14_STATE.session.endedAt);V14_STATE.screen="complete";v14Render();}
+
+function v14Complete(){
+  document.getElementById("app").innerHTML=`${v14Top("Call Report")}
+  <main class="page">${v14Steps(5)}
+    <div class="card form-card">
+      <div class="section-head"><div><h1>Medical Detailing Completed</h1><p>Review the call information and save the report.</p></div><span class="v14-badge">${esc(V14_STATE.session.customer?.source||"")}</span></div>
+      <div class="v14-success"><strong>${esc(V14_STATE.session.customer?.name||"Customer")}</strong><br>${esc(V14_STATE.session.customer?.type||"")} · ${esc(V14_STATE.session.specialty||"")}</div>
+      <div class="v14-formgrid" style="margin-top:14px">
+        <div><label>Customer</label><div class="v14-subtle">${esc(V14_STATE.session.customer?.name||"")}</div></div>
+        <div><label>Customer Type</label><div class="v14-subtle">${esc(V14_STATE.session.customer?.type||"")}</div></div>
+        <div><label>Facility</label><div class="v14-subtle">${esc(V14_STATE.session.customer?.facility||"")}</div></div>
+        <div><label>Location</label><div class="v14-subtle">${esc(V14_STATE.session.customer?.location||"")}</div></div>
+        <div><label>Specialty / Audience</label><div class="v14-subtle">${esc(V14_STATE.session.specialty||"")}${V14_STATE.session.audience?` · ${esc(V14_STATE.session.audience)}`:""}</div></div>
+        <div><label>Products</label><div class="v14-subtle">${V14_STATE.session.products.map(esc).join(", ")}</div></div>
+        <div><label>Duration</label><div class="v14-subtle">${fmtDuration(V14_STATE.session.durationSec||0)}</div></div>
+        <div><label>Started</label><div class="v14-subtle">${new Date(V14_STATE.session.startedAt).toLocaleString()}</div></div>
+      </div>
+      <div style="margin-top:14px"><label>Visit Outcome</label><select id="v14Outcome"><option>Product information presented</option><option>Follow-up required</option><option>Order / stock discussion</option><option>No further action</option><option>Other</option></select></div>
+      <div style="margin-top:14px"><label>Notes</label><textarea id="v14ReportNotes" rows="3"></textarea></div>
+      <div class="form-actions"><button class="btn" onclick="V14_STATE.screen='detail';v14Render()">← Back to detailing</button><button class="btn primary" onclick="v14SaveReport()">SAVE CALL REPORT</button></div>
+    </div></main>`;
+}
+function v14SaveReport(){
+  const db=v14Sync();
+  db.reports.unshift({
+    id:v14Id("RPT"),rep:V14_STATE.session.rep,customerType:V14_STATE.session.customer?.type||"",
+    customerId:V14_STATE.session.customer?.id||"",customerName:V14_STATE.session.customer?.name||"",
+    facility:V14_STATE.session.customer?.facility||"",location:V14_STATE.session.customer?.location||"",
+    specialty:V14_STATE.session.specialty||"",audience:V14_STATE.session.audience||"",
+    products:[...V14_STATE.session.products],customerSource:V14_STATE.session.customer?.source||"",
+    startedAt:V14_STATE.session.startedAt,endedAt:V14_STATE.session.endedAt,durationSec:V14_STATE.session.durationSec||0,
+    outcome:document.getElementById("v14Outcome").value,notes:document.getElementById("v14ReportNotes").value.trim()
+  });
+  if(v14Write(db)){ alert("Call report saved."); V14_STATE.screen="mr"; V14_STATE.customer=null; V14_STATE.selected=[]; V14_STATE.candidates=[]; v14Render(); }
+}
+
+function v14Admin(){
+  const db=v14Sync(), pendingH=(db.hcpRequests||[]).filter(r=>r.status==="pending").length, pendingP=(db.pharmacyRequests||[]).filter(r=>r.status==="pending").length;
+  document.getElementById("app").innerHTML=`${v14Top("Admin Dashboard")}<main class="page">
+    <div class="card" style="padding:18px 20px;margin-bottom:16px"><div style="font-size:12px;color:var(--muted)">${v14IsSuper()?"SUPER ADMIN":"ADMIN"}</div><div style="font-size:23px;font-weight:1000">${esc(V14_STATE.user?.fullName||"")}</div><div class="v14-help">Central controls for users, customers, products, mappings and reports.</div></div>
+    <div class="v14-cardgrid">
+      <button class="v14-actioncard v14-card-accent" onclick="V14_STATE.screen='reports';v14Render()"><h3>📊 Reports</h3><p>Filter and export Medical Rep calls.</p></button>
+      <button class="v14-actioncard" onclick="V14_STATE.screen='directories';v14Render()"><h3>👥 HCP / Pharmacy Directories</h3><p>View approved customer masters.</p></button>
+      <button class="v14-actioncard v14-card-accent-red" onclick="V14_STATE.screen='hcppending';v14Render()"><h3>✅ Approval Queues</h3><p>${pendingH} HCP pending · ${pendingP} Pharmacy pending.</p></button>
+      <button class="v14-actioncard" onclick="V14_STATE.screen='adminProducts';v14Render()"><h3>📦 Products</h3><p>Maintain all 25 ACCRA products and flyers.</p></button>
+      <button class="v14-actioncard" onclick="V14_STATE.screen='specialties';v14Render()"><h3>🩺 Specialties</h3><p>Add specialty entries for Medical Reps.</p></button>
+      <button class="v14-actioncard" onclick="V14_STATE.screen='mapping';v14Render()"><h3>🧭 Specialty Mapping</h3><p>Map products and maintain priority availability.</p></button>
+      <button class="v14-actioncard" onclick="V14_STATE.screen='adminForm';v14Render()"><h3>📄 Flyer Management</h3><p>Add or replace product flyers.</p></button>
+      ${v14IsSuper()?`<button class="v14-actioncard v14-card-accent" onclick="V14_STATE.screen='users';v14Render()"><h3>🔐 User Management</h3><p>Create, search, disable, enable, delete and reset users.</p></button>
+      <button class="v14-actioncard v14-card-accent-red" onclick="V14_STATE.screen='viability';v14Render()"><h3>🎯 Specialty Viability</h3><p>Move specialties into or out of the limited-fit tail.</p></button>
+      <button class="v14-actioncard" onclick="V14_STATE.screen='system';v14Render()"><h3>⚙️ System Control</h3><p>Disable/enable and refresh platform settings.</p></button>`:""}
+      <button class="v14-actioncard" onclick="V14_STATE.screen='welcome';V14_STATE.user=null;v14Render()"><h3>↩ Exit</h3><p>Return to access selection.</p></button>
+    </div></main>`;
+}
+
+function v14Users(){
+  if(!v14IsSuper())return alert("Super Admin access required.");
+  const db=v14Sync(),q=(document.getElementById("v14UserSearch")?.value||"").toLowerCase();
+  const users=(db.users||[]).filter(u=>[u.fullName,u.username,u.email,u.role].some(v=>String(v||"").toLowerCase().includes(q)));
+  const rows=users.map(u=>`<div class="v14-list-item"><div class="v14-list-main">
+    <strong>${esc(u.fullName)} ${u.id==="SUPER-MARLEY-KANYINGI"?'<span class="v14-badge">SUPER ADMIN</span>':""}</strong>
+    <small>@${esc(u.username)}${u.email?` · ${esc(u.email)}`:""}</small>
+    <small>${u.role==="super_admin"?"Super Admin":u.role==="admin"?"Admin":"Medical Rep"} · ${u.active?"ACTIVE":"DISABLED"}${u.mustSetPassword?" · PASSWORD NOT SET":""}</small>
+  </div><div class="v14-actions">
+    ${u.id==="SUPER-MARLEY-KANYINGI"?'<span class="v14-subtle">Protected account</span>':`${u.active?`<button class="btn" onclick="v14UserAction('disable',${v14Arg(u.id)})">Disable</button>`:`<button class="btn" onclick="v14UserAction('enable',${v14Arg(u.id)})">Enable</button>`}
+    <button class="btn" onclick="v14UserAction('reset',${v14Arg(u.id)})">Reset Password</button>
+    <button class="btn" onclick="v14UserAction('delete',${v14Arg(u.id)})">Delete</button>`}
+  </div></div>`).join("");
+  document.getElementById("app").innerHTML=`${v14Top("Super Admin • User Management")}<main class="page"><div class="card admin-card" style="padding:20px">
+    <div class="section-head"><div><h1>User Management</h1><p>${users.length} account(s) in the persistent ACCRA user store.</p></div><span class="v14-badge">STORAGE: ${v14StorageReady()?"READY":"CHECK"}</span></div>
+    <div class="v14-actions" style="margin-bottom:14px"><button class="btn primary" onclick="V14_STATE.screen='createUser';v14Render()">+ CREATE USER</button></div>
+    <input id="v14UserSearch" class="v14-search" type="search" placeholder="Search name, username, email or role" oninput="v14Users()" value="${esc(q)}">
+    <div class="v14-list">${rows||'<div class="v14-empty">No matching users.</div>'}</div>
+    <div class="v14-help">Usernames are checked case-insensitively and spaces are ignored. A second account with the same username cannot be saved.</div>
+  </div></main>`;
+}
+function v14StorageReady(){
+  try{const k="accra_v14_storage_test";localStorage.setItem(k,"ok");const ok=localStorage.getItem(k)==="ok";localStorage.removeItem(k);return ok}catch(e){return false}
+}
+function v14CreateUser(){
+  if(!v14IsSuper())return alert("Super Admin access required.");
+  document.getElementById("app").innerHTML=`${v14Top("Create User")}<main class="page"><div class="card form-card">
+    <div class="section-head"><div><h1>Create User</h1><p>The new account is stored immediately and will appear in User Management after refresh.</p></div></div>
+    <div class="v14-formgrid">
+      <div class="v14-field"><label>Full Name *</label><input id="v14UNFull" type="text"></div>
+      <div class="v14-field"><label>Username *</label><input id="v14UNUser" type="text" placeholder="e.g. jane.wanjiku"></div>
+      <div class="v14-field"><label>Email</label><input id="v14UNEmail" type="email"></div>
+      <div class="v14-field"><label>Role *</label><select id="v14UNRole"><option value="rep">Medical Rep</option><option value="admin">Admin</option></select></div>
+      <div class="v14-field"><label>Initial Password</label><input id="v14UNPass" type="password" placeholder="Leave blank for first-time password setup"></div>
+    </div>
+    <div class="v14-help">The account is permanent until deleted by the Super Admin. Username matching ignores capitalization and spaces.</div>
+    <div class="form-actions"><button class="btn" onclick="V14_STATE.screen='users';v14Render()">← Back</button><button class="btn primary" onclick="v14SaveUser()">CREATE USER</button></div>
+  </div></main>`;
+}
+function v14SaveUser(){
+  const fullName=document.getElementById("v14UNFull").value.trim(),username=v14NormalizeUsername(document.getElementById("v14UNUser").value),
+    email=v14NormalizeEmail(document.getElementById("v14UNEmail").value),role=document.getElementById("v14UNRole").value,password=document.getElementById("v14UNPass").value;
+  if(!fullName||!username)return alert("Full Name and Username are required.");
+  const db=v14Sync();
+  if(db.users.some(u=>v14NormalizeUsername(u.username)===username))return alert("That username already exists. Usernames are case-insensitive and spaces are ignored.");
+  if(email && db.users.some(u=>v14NormalizeEmail(u.email)===email))return alert("That email already exists.");
+  const u={id:v14Id("USR"),fullName,username,email,role,password,active:true,mustSetPassword:!password,createdAt:new Date().toISOString()};
+  db.users.push(u);
+  if(v14Write(db)){alert("User created and saved. The account is now visible in User Management.");V14_STATE.screen="users";v14Render();}
+}
+function v14UserAction(action,id){
+  if(!v14IsSuper())return;
+  const db=v14Sync(),u=db.users.find(x=>x.id===id);if(!u||u.id==="SUPER-MARLEY-KANYINGI")return;
+  if(action==="disable")u.active=false;
+  if(action==="enable")u.active=true;
+  if(action==="delete"){if(!confirm("Delete "+u.fullName+" permanently?"))return;db.users=db.users.filter(x=>x.id!==id);}
+  if(action==="reset"){const p=prompt("Enter the new password for "+u.fullName+":");if(p===null)return;if(p.length<4)return alert("Use at least 4 characters.");u.password=p;u.mustSetPassword=false;u.active=true;}
+  if(v14Write(db))v14Users();
+}
+
+function v14ApprovalQueues(){
+  if(!v14IsAdmin())return alert("Admin access required.");
+  const db=v14Sync(),hp=db.hcpRequests||[],pp=db.pharmacyRequests||[];
+  const pendingH=hp.filter(r=>r.status==="pending"),pendingP=pp.filter(r=>r.status==="pending");
+  document.getElementById("app").innerHTML=`${v14Top("Approval Queues")}<main class="page"><div class="section-head"><div><h1>HCP & Pharmacy Approval Queues</h1><p>Approve, reject or edit requests before they enter the approved master lists.</p></div></div>
+    <div class="card admin-card" style="padding:18px;margin-bottom:16px"><h2>HCP Requests <span class="v14-count">(${pendingH.length} pending)</span></h2>${pendingH.length?`<div class="v14-list">${pendingH.map(r=>`<div class="v14-list-item"><div class="v14-list-main"><strong>${esc(r.name)}</strong><small>${esc(r.facility)} · ${esc(r.location||"")}</small><small>${esc(r.specialty)}${r.subSpecialty?` · ${esc(r.subSpecialty)}`:""} · Submitted by ${esc(r.submittedBy)} · ${new Date(r.submittedAt).toLocaleString()}</small></div><div class="v14-actions"><button class="btn" onclick="v14EditRequest('hcp',${v14Arg(r.id)})">Edit</button><button class="btn primary" onclick="v14ResolveRequest('hcp',${v14Arg(r.id)},'approve')">Approve</button><button class="btn" onclick="v14ResolveRequest('hcp',${v14Arg(r.id)},'reject')">Reject</button></div></div>`).join("")}</div>`:'<div class="v14-empty">No pending HCP requests.</div>'}</div>
+    <div class="card admin-card" style="padding:18px"><h2>Pharmacy Requests <span class="v14-count">(${pendingP.length} pending)</span></h2>${pendingP.length?`<div class="v14-list">${pendingP.map(r=>`<div class="v14-list-item"><div class="v14-list-main"><strong>${esc(r.name)}</strong><small>${esc(r.location||"")} · ${esc(r.town||"")} · ${esc(r.county||"")}</small><small>${esc(r.phone||"")} ${r.owner?`· ${esc(r.owner)}`:""} · Submitted by ${esc(r.submittedBy)} · ${new Date(r.submittedAt).toLocaleString()}</small></div><div class="v14-actions"><button class="btn" onclick="v14EditRequest('pharmacy',${v14Arg(r.id)})">Edit</button><button class="btn primary" onclick="v14ResolveRequest('pharmacy',${v14Arg(r.id)},'approve')">Approve</button><button class="btn" onclick="v14ResolveRequest('pharmacy',${v14Arg(r.id)},'reject')">Reject</button></div></div>`).join("")}</div>`:'<div class="v14-empty">No pending Pharmacy requests.</div>'}</div>
+  </main>`;
+}
+function v14EditRequest(type,id){
+  const db=v14Sync(),arr=type==="hcp"?db.hcpRequests:db.pharmacyRequests,req=arr.find(r=>r.id===id);if(!req)return;
+  if(type==="hcp"){
+    const name=prompt("HCP Name:",req.name),fac=prompt("Facility / Institution:",req.facility),phone=prompt("Phone:",req.phone||""),loc=prompt("Location:",req.location||"");
+    if(name===null||fac===null||phone===null||loc===null)return;
+    Object.assign(req,{name:name.trim(),facility:fac.trim(),phone:phone.trim(),location:loc.trim(),editedBy:V14_STATE.user.fullName,editedAt:new Date().toISOString()});
+  }else{
+    const name=prompt("Pharmacy Name:",req.name),loc=prompt("Physical Location:",req.location||""),town=prompt("Town:",req.town||""),county=prompt("County:",req.county||""),phone=prompt("Phone:",req.phone||"");
+    if(name===null||loc===null||town===null||county===null||phone===null)return;
+    Object.assign(req,{name:name.trim(),location:loc.trim(),town:town.trim(),county:county.trim(),phone:phone.trim(),editedBy:V14_STATE.user.fullName,editedAt:new Date().toISOString()});
+  }
+  v14Write(db);v14ApprovalQueues();
+}
+function v14ResolveRequest(type,id,action){
+  const db=v14Sync(),arr=type==="hcp"?db.hcpRequests:db.pharmacyRequests,req=arr.find(r=>r.id===id);if(!req)return;
+  if(action==="reject"){req.status="rejected";req.resolvedBy=V14_STATE.user.fullName;req.resolvedAt=new Date().toISOString();v14Write(db);return v14ApprovalQueues();}
+  if(action==="approve"){
+    req.status="approved";req.resolvedBy=V14_STATE.user.fullName;req.resolvedAt=new Date().toISOString();
+    if(type==="hcp"){
+      db.hcps.unshift({...req,status:"approved",approvedAt:req.resolvedAt,approvedBy:req.resolvedBy,source:"Approved Request"});
+    }else{
+      db.pharmacies.unshift({...req,status:"approved",approvedAt:req.resolvedAt,approvedBy:req.resolvedBy,source:"Approved Request"});
+    }
+    v14Write(db);v14ApprovalQueues();
+  }
+}
+
+function v14Directories(){
+  if(!v14IsAdmin())return alert("Admin access required.");
+  const db=v14Sync(),hcps=db.hcps.filter(x=>x.status==="approved"),ph=db.pharmacies.filter(x=>x.status==="approved");
+  document.getElementById("app").innerHTML=`${v14Top("Customer Directories")}<main class="page">
+    <div class="card" style="padding:18px;margin-bottom:16px"><div class="section-head"><div><h1>Approved HCP Directory</h1><p>${hcps.length} approved HCP(s).</p></div></div>${hcps.length?`<div class="v14-table-wrap"><table class="v14-table"><thead><tr><th>Name</th><th>Facility</th><th>Location</th><th>Specialty</th><th>Sub-Specialty</th><th>Phone</th></tr></thead><tbody>${hcps.map(x=>`<tr><td>${esc(x.name)}</td><td>${esc(x.facility)}</td><td>${esc(x.location)}</td><td>${esc(x.specialty)}</td><td>${esc(x.subSpecialty||"")}</td><td>${esc(x.phone||"")}</td></tr>`).join("")}</tbody></table></div>`:`<div class="v14-empty">No approved HCPs are currently populated in the supplied workbook. The template/test entries were not treated as approved records.</div>`}</div>
+    <div class="card" style="padding:18px"><div class="section-head"><div><h1>Approved Pharmacy Directory</h1><p>${ph.length} approved pharmacy(ies).</p></div></div>${ph.length?`<div class="v14-table-wrap"><table class="v14-table"><thead><tr><th>Pharmacy</th><th>Type</th><th>Owner/Contact</th><th>Location</th><th>County</th><th>Town</th><th>Phone</th></tr></thead><tbody>${ph.map(x=>`<tr><td>${esc(x.name)}</td><td>${esc(x.type||"")}</td><td>${esc(x.owner||"")}</td><td>${esc(x.location||"")}</td><td>${esc(x.county||"")}</td><td>${esc(x.town||"")}</td><td>${esc(x.phone||"")}</td></tr>`).join("")}</tbody></table></div>`:`<div class="v14-empty">No approved pharmacies are currently populated in the supplied workbook. The template/“Others” row was not treated as an approved pharmacy.</div>`}</div>
+    <div class="form-actions"><button class="btn" onclick="V14_STATE.screen='admin';v14Render()">← Back</button></div>
+  </main>`;
+}
+
+function v14Reports(){
+  if(!v14IsAdmin())return alert("Admin access required.");
+  const db=v14Sync(),reports=db.reports||[];
+  const qRep=(document.getElementById("v14RRep")?.value||""),qType=(document.getElementById("v14RType")?.value||""),
+    qSpec=(document.getElementById("v14RSpec")?.value||""),qProd=(document.getElementById("v14RProd")?.value||""),
+    qFrom=(document.getElementById("v14RFrom")?.value||""),qTo=(document.getElementById("v14RTo")?.value||"");
+  const filtered=reports.filter(r=>{
+    if(qRep && r.rep!==qRep)return false;if(qType&&r.customerType!==qType)return false;if(qSpec&&r.specialty!==qSpec)return false;
+    if(qProd&&!(r.products||[]).includes(qProd))return false;
+    if(qFrom && new Date(r.startedAt)<new Date(qFrom+"T00:00:00"))return false;
+    if(qTo && new Date(r.startedAt)>new Date(qTo+"T23:59:59"))return false;
+    return true;
+  });
+  const reps=[...new Set(reports.map(r=>r.rep).filter(Boolean))],specs=[...new Set(reports.map(r=>r.specialty).filter(Boolean))],types=[...new Set(reports.map(r=>r.customerType).filter(Boolean))];
+  const products=v14AllProducts().map(p=>p.name);
+  const rows=filtered.map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.rep)}</td><td>${esc(r.customerType)}</td><td>${esc(r.customerName)}</td><td>${esc(r.facility)}</td><td>${esc(r.specialty)}</td><td>${r.products.map(esc).join("<br>")}</td><td>${esc(r.customerSource)}</td><td>${new Date(r.startedAt).toLocaleString()}</td><td>${fmtDuration(r.durationSec)}</td><td>${esc(r.outcome)}</td></tr>`).join("");
+  document.getElementById("app").innerHTML=`${v14Top("Admin Reports")}<main class="page">
+    <div class="section-head"><div><h1>Call Reports</h1><p>${filtered.length} of ${reports.length} reports shown.</p></div><button class="btn" onclick="v14ExportReports()">Export CSV</button></div>
+    <div class="card" style="padding:14px;margin-bottom:14px"><div class="v14-formgrid three">
+      <div><label>Rep</label><select id="v14RRep" onchange="v14Reports()"><option value="">All</option>${reps.map(x=>`<option ${qRep===x?"selected":""}>${esc(x)}</option>`).join("")}</select></div>
+      <div><label>Customer Type</label><select id="v14RType" onchange="v14Reports()"><option value="">All</option>${types.map(x=>`<option ${qType===x?"selected":""}>${esc(x)}</option>`).join("")}</select></div>
+      <div><label>Specialty / Audience</label><select id="v14RSpec" onchange="v14Reports()"><option value="">All</option>${specs.map(x=>`<option ${qSpec===x?"selected":""}>${esc(x)}</option>`).join("")}</select></div>
+      <div><label>Product</label><select id="v14RProd" onchange="v14Reports()"><option value="">All</option>${products.map(x=>`<option ${qProd===x?"selected":""}>${esc(x)}</option>`).join("")}</select></div>
+      <div><label>From</label><input id="v14RFrom" type="date" onchange="v14Reports()" value="${esc(qFrom)}"></div>
+      <div><label>To</label><input id="v14RTo" type="date" onchange="v14Reports()" value="${esc(qTo)}"></div>
+    </div></div>
+    <div class="card" style="padding:14px"><div class="v14-table-wrap">${filtered.length?`<table class="v14-table"><thead><tr><th>#</th><th>Rep</th><th>Type</th><th>Customer</th><th>Facility</th><th>Specialty</th><th>Products</th><th>Source</th><th>Date/Time</th><th>Duration</th><th>Outcome</th></tr></thead><tbody>${rows}</tbody></table>`:`<div class="v14-empty">No reports match the selected filters.</div>`}</div></div>
+  </main>`;
+}
+function v14ExportReports(){
+  const db=v14Sync(),rows=[["Rep","Customer Type","Customer ID","Customer","Facility","Location","Specialty/Audience","Products","Customer Source","Started","Ended","Duration (sec)","Outcome","Notes"],...(db.reports||[]).map(r=>[
+    r.rep,r.customerType,r.customerId,r.customerName,r.facility,r.location,r.specialty+(r.audience?" / "+r.audience:""),(r.products||[]).join(" | "),r.customerSource,r.startedAt,r.endedAt,r.durationSec,r.outcome,r.notes||""
+  ])];
+  const csv=rows.map(row=>row.map(v=>`"${String(v??"").replace(/"/g,'""')}"`).join(",")).join("\n");
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));a.download="accra_call_reports.csv";a.click();
+}
+
+function v14AdminProducts(){
+  const db=v14Sync(),ps=v14AllProducts();
+  document.getElementById("app").innerHTML=`${v14Top("Product Library")}<main class="page"><div class="card" style="padding:18px">
+    <div class="section-head"><div><h1>Product Library</h1><p>${ps.length} products in the ACCRA portfolio.</p></div><button class="btn gold" onclick="V14_STATE.editProduct=null;V14_STATE.screen='adminForm';v14Render()">+ Add Product</button></div>
+    <div class="v14-list">${ps.map(p=>`<div class="v14-list-item"><div class="v14-list-main"><strong>${esc(p.name)}</strong><small>${esc(p.need||"")} · ${p.image?"Flyer available":"Flyer missing"}</small></div><button class="btn" onclick="V14_STATE.editProduct=${v14Arg(p.name)};V14_STATE.screen='adminForm';v14Render()">Edit</button></div>`).join("")}</div>
+    <div class="form-actions"><button class="btn" onclick="V14_STATE.screen='admin';v14Render()">← Back</button></div>
+  </div></main>`;
+}
+function v14AdminForm(){
+  const p=V14_STATE.editProduct?v14Product(V14_STATE.editProduct):null;
+  document.getElementById("app").innerHTML=`${v14Top(p?"Edit Product":"Add Product")}<main class="page"><div class="card form-card">
+    <div class="section-head"><div><h1>${p?"Edit":"Add"} Product</h1><p>Maintain product name, clinical need and flyer.</p></div></div>
+    <label>Product Name</label><input id="v14ProdName" type="text" value="${esc(p?.name||"")}">
+    <div style="margin-top:14px"><label>Clinical Need</label><input id="v14ProdNeed" type="text" value="${esc(p?.need||"")}"></div>
+    <div style="margin-top:14px"><label>Flyer (image/PDF)</label><input id="v14ProdFile" type="file" accept="image/*,application/pdf"></div>
+    <div class="v14-warning" style="margin-top:12px">A product without an uploaded flyer will show the standard “Information Temporarily Unavailable” screen during Medical Detailing.</div>
+    <div class="form-actions"><button class="btn" onclick="V14_STATE.screen='adminProducts';v14Render()">← Back</button><button class="btn primary" onclick="v14SaveProduct()">Save Product</button></div>
+  </div></main>`;
+}
+function v14SaveProduct(){
+  const name=document.getElementById("v14ProdName").value.trim(),need=document.getElementById("v14ProdNeed").value.trim(),file=document.getElementById("v14ProdFile").files[0],db=v14Sync(),old=V14_STATE.editProduct;
+  if(!name)return alert("Product name is required.");
+  const save=(data,type)=>{
+    const xs=db.extraProducts||[];const idx=xs.findIndex(x=>v14NormalizeText(x.name)===v14NormalizeText(old||name));
+    const existing=v14Product(old||name)||{};
+    const obj={...existing,name,need,image:data||existing.image||null,imageType:type||existing.imageType||null};
+    if(idx>=0)xs[idx]=obj;else xs.push(obj);
+    db.extraProducts=xs; if(v14Write(db)){alert("Product saved.");V14_STATE.editProduct=null;V14_STATE.screen="adminProducts";v14Render();}
+  };
+  if(file){const fr=new FileReader();fr.onload=()=>save(fr.result,file.type==="application/pdf"?"pdf":"image");fr.readAsDataURL(file)}else save(null,null);
+}
+
+function v14Mapping(){
+  const ps=v14AllProducts(),db=v14Sync(),name=document.getElementById("v14MapProduct")?.value||ps[0]?.name||"";
+  const p=v14Product(name),current=(db.mappings[name.toUpperCase()]||p?.specialties||[]).map(String);
+  const sp=v14ViableSpecialties();
+  document.getElementById("app").innerHTML=`${v14Top("Specialty Mapping")}<main class="page"><div class="card" style="padding:20px">
+    <div class="section-head"><div><h1>Map Products to Specialties</h1><p>Save Mapping, Cancel and Back are available.</p></div></div>
+    <label>Product</label><select id="v14MapProduct" onchange="v14Mapping()">${ps.map(x=>`<option ${x.name===name?"selected":""}>${esc(x.name)}</option>`).join("")}</select>
+    <div class="v14-help" style="margin:10px 0">Pharmacist is automatic and always receives the full portfolio; it is not a clinical specialty mapping.</div>
+    <div style="font-size:12px;font-weight:900;margin:14px 0 8px">Mapped clinical specialties</div>
+    <div class="checkbox-list">${sp.map(s=>`<label><input type="checkbox" value="${esc(s.name)}" ${current.some(x=>v14NormalizeText(x)===v14NormalizeText(s.name))?"checked":""}>${esc(s.name)}</label>`).join("")}</div>
+    <div class="form-actions"><button class="btn primary" onclick="v14SaveMapping()">Save Mapping</button><button class="btn" onclick="v14Mapping()">Cancel</button><button class="btn" onclick="V14_STATE.screen='admin';v14Render()">← Back</button></div>
+  </div></main>`;
+}
+function v14SaveMapping(){
+  const name=document.getElementById("v14MapProduct").value,sel=[...document.querySelectorAll(".checkbox-list input:checked")].map(x=>x.value),db=v14Sync();db.mappings[name.toUpperCase()]=sel;
+  if(v14Write(db)){alert("Mapping saved.");v14Mapping();}
+}
+
+function v14Specialties(){
+  const specs=v14ViableSpecialties();
+  document.getElementById("app").innerHTML=`${v14Top("Specialty Management")}<main class="page"><div class="card form-card">
+    <div class="section-head"><div><h1>Specialty Management</h1><p>Add and review selectable specialties.</p></div></div>
+    <label>Specialty Name</label><input id="v14SpecName" type="text" placeholder="e.g. Gastroenterology">
+    <div class="form-actions" style="justify-content:flex-start"><button class="btn primary" onclick="v14AddSpecialty()">+ Add Specialty</button><button class="btn" onclick="V14_STATE.screen='admin';v14Render()">← Back</button></div>
+    <hr><div style="font-size:12px;font-weight:900;margin-bottom:10px">Current selectable specialties</div>
+    <div class="v14-list">${specs.map(s=>`<div class="v14-list-item"><div class="v14-list-main"><strong>${esc(s.name)}</strong><small>Selectable for Medical Reps</small></div></div>`).join("")}</div>
+  </div></main>`;
+}
+function v14AddSpecialty(){
+  const name=document.getElementById("v14SpecName").value.trim();if(!name)return alert("Enter a specialty name.");
+  const db=v14Sync();if(v14AllSpecialties().some(s=>v14NormalizeText(s.name)===v14NormalizeText(name)))return alert("That specialty already exists.");
+  db.extraSpecialties.push({name});if(v14Write(db)){alert("Specialty added.");v14Specialties();}
+}
+
+function v14Viability(){
+  if(!v14IsSuper())return alert("Super Admin access required.");
+  const specs=v14AllSpecialties(),tail=v14NotViableSpecialties();
+  document.getElementById("app").innerHTML=`${v14Top("Super Admin • Specialty Viability")}<main class="page"><div class="card admin-card" style="padding:20px">
+    <div class="section-head"><div><h1>Specialty Viability Management</h1><p>Move specialties into or out of Not Viable / Limited Portfolio Fit.</p></div></div>
+    <div class="v14-warning">This control only changes dashboard visibility. It does not delete a specialty or product mapping.</div>
+    <div class="v14-list" style="margin-top:14px">${specs.map(s=>`<div class="v14-list-item"><div class="v14-list-main"><strong>${esc(s.name)}</strong><small>${s.notViable?"Currently Not Viable / Limited Portfolio Fit":"Currently selectable"}</small></div>${s.notViable?`<button class="btn" onclick="v14SetViability(${v14Arg(s.name)},false)">Remove from Not Viable</button>`:`<button class="btn" onclick="v14SetViability(${v14Arg(s.name)},true)">Move to Not Viable</button>`}</div>`).join("")}</div>
+    <div class="form-actions"><button class="btn" onclick="V14_STATE.screen='admin';v14Render()">← Back</button></div>
+  </div></main>`;
+}
+function v14SetViability(name,val){const db=v14Sync();db.viabilityOverrides[v14NormalizeText(name)]=!!val;if(v14Write(db))v14Viability();}
+
+function v14System(){
+  if(!v14IsAdmin())return alert("Admin access required.");
+  const db=v14Sync(),d=db.systemDisabled;
+  document.getElementById("app").innerHTML=`${v14Top("System Control")}<main class="page"><div class="card" style="padding:20px">
+    <div class="section-head"><div><h1>System Control</h1><p>Super Admin controls are available to Marley Kanyingi.</p></div></div>
+    <div class="system-box ${d?'system-off':'system-on'}">${d?"SYSTEM IS DISABLED":"SYSTEM IS ACTIVE"}</div>
+    <div class="form-actions" style="justify-content:flex-start">${v14IsSuper()?(d?'<button class="btn" onclick="v14SetSystem(false)">ENABLE</button>':'<button class="btn" onclick="v14SetSystem(true)">DISABLE</button>'):''}<button class="btn primary" onclick="v14Refresh()">REFRESH / RESYNC</button></div>
+    <div class="v14-help">Easy-open version uses this browser's persistent storage. Refresh / resync reloads the current saved state.</div>
+  </div></main>`;
+}
+function v14SetSystem(v){if(!v14IsSuper())return;const db=v14Sync();db.systemDisabled=!!v;if(v14Write(db))v14System();}
+function v14Refresh(){v14Sync();alert("Saved ACCRA settings reloaded.");}
+
+function v14Back(){
+  if(V14_STATE.screen==="login"||V14_STATE.screen==="setpass"){V14_STATE.screen="welcome";return v14Render();}
+  if(["mr","admin"].includes(V14_STATE.screen)){V14_STATE.screen="welcome";V14_STATE.user=null;return v14Render();}
+  if(["customer"].includes(V14_STATE.screen)){V14_STATE.screen="mr";return v14Render();}
+  if(["hpcs","pharmacies"].includes(V14_STATE.screen)){V14_STATE.screen="customer";return v14Render();}
+  if(["otherHcp"].includes(V14_STATE.screen)){V14_STATE.screen="hpcs";return v14Render();}
+  if(["otherPharmacy"].includes(V14_STATE.screen)){V14_STATE.screen="pharmacies";return v14Render();}
+  if(["products"].includes(V14_STATE.screen)){V14_STATE.screen="customer";return v14Render();}
+  if(["detail"].includes(V14_STATE.screen)){V14_STATE.screen="products";return v14Render();}
+  if(["complete"].includes(V14_STATE.screen)){V14_STATE.screen="detail";return v14Render();}
+  V14_STATE.screen="admin";return v14Render();
+}
+
+
+/* original V14 boot — kept in its original position */
+v14Render();
 </script>
+
+<script>
+(function(){
+  // FUNCTIONAL-ONLY V15 PATCH: preserve the original V14 navigation/framework.
+  function v15Mail(to,subject,body){
+    const href='mailto:'+encodeURIComponent(to)+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+    const a=document.createElement('a');a.href=href;a.style.display='none';document.body.appendChild(a);a.click();a.remove();
+  }
+  function v15Temp(){return 'AC'+Math.random().toString(36).slice(2,6).toUpperCase()+Math.floor(1000+Math.random()*9000);}
+  function v15Token(){return v14Id('RESET')+'-'+Math.random().toString(36).slice(2,14);}
+  function v15Ensure(db){
+    ['hcpEditRequests','pharmacyEditRequests','accountRequests','passwordResetRequests','dataImportLog'].forEach(k=>{if(!Array.isArray(db[k]))db[k]=[];});
+    (db.users||[]).forEach(u=>{if(!u.status)u.status=u.active===false?'disabled':'approved';if(!('email' in u))u.email='';});
+    return db;
+  }
+  const _v14GetDB=v14GetDB;
+  v14GetDB=function(){return v15Ensure(_v14GetDB());};
+  v14Sync=function(){V14_DB=v14GetDB();return V14_DB;};
+
+  // Add routes without changing existing routes.
+  const _v14Render=v14Render;
+  v14Render=function(){
+    if(location.hash && location.hash.indexOf('#reset=')===0){V14_STATE.screen='resetToken';V14_STATE.resetToken=decodeURIComponent(location.hash.slice(7));}
+    if(V14_STATE.screen==='register')return v14RegisterAccount();
+    if(V14_STATE.screen==='resetToken')return v14ResetToken();
+    if(V14_STATE.screen==='imports')return v14BulkImport();
+    if(V14_STATE.screen==='editClient')return v14EditClient();
+    return _v14Render();
+  };
+
+  // Public account registration: registration creates a pending request only.
+  v14Login=function(){
+    const label=V14_STATE.roleChoice==='admin'?'Admin':'Medical Rep';
+    const last=v14Read('accra_v14_last_username','');
+    document.getElementById('app').innerHTML=`${v14Top(label+' Login')}<main class="page"><div class="card form-card">
+      <div class="section-head"><div><h1>${label} Login</h1><p>Use your registered username or email.</p></div><span class="v14-badge">Persistent Accounts</span></div>
+      <label>Username or Registered Email</label><input id="v14LoginId" type="text" placeholder="e.g. rep.john or email@example.com" value="${esc(last)}" autocomplete="username">
+      <div style="margin-top:14px"><label>Password</label><input id="v14LoginPass" type="password" placeholder="Password" autocomplete="current-password"></div>
+      <div class="form-actions"><button class="btn" onclick="v14Back()">← Back</button><div class="v14-actions"><button class="btn" onclick="V14_STATE.screen='register';v14Render()">Register</button><button class="btn" onclick="v14ForgotPassword()">Forgot Password?</button><button class="btn primary" onclick="v14DoLogin()">Log in</button></div></div>
+      <div class="v14-help">Username must be unique. Registered email is mandatory for new accounts and is used for password recovery.</div>
+    </div></main>`;
+  };
+
+  v14RegisterAccount=function(){
+    document.getElementById('app').innerHTML=`${v14Top('Account Registration')}<main class="page"><div class="card form-card">
+      <div class="section-head"><div><h1>Register Account</h1><p>Your account will remain <strong>Pending Approval</strong> until an Admin or Super Admin approves it.</p></div><span class="v14-badge">PENDING APPROVAL</span></div>
+      <div class="v14-formgrid"><div class="v14-field"><label>Full Name *</label><input id="v15RegName" type="text"></div><div class="v14-field"><label>Username *</label><input id="v15RegUser" type="text" placeholder="e.g. jane.wanjiku"></div><div class="v14-field"><label>Registered Email *</label><input id="v15RegEmail" type="email" placeholder="name@example.com"></div><div class="v14-field"><label>Requested Role *</label><select id="v15RegRole"><option value="rep">Medical Rep</option><option value="admin">Admin</option></select></div></div>
+      <div class="v14-warning" style="margin-top:14px">Do not share a password during registration. After approval, a temporary password will be generated and prepared for the registered email. You must change it on first login.</div>
+      <div class="form-actions"><button class="btn" onclick="V14_STATE.screen='login';v14Render()">← Back</button><button class="btn primary" onclick="v14SubmitRegistration()">Submit Registration</button></div>
+    </div></main>`;
+  };
+  v14SubmitRegistration=function(){
+    const fullName=document.getElementById('v15RegName').value.trim(),username=v14NormalizeUsername(document.getElementById('v15RegUser').value),email=v14NormalizeEmail(document.getElementById('v15RegEmail').value),role=document.getElementById('v15RegRole').value;
+    if(!fullName||!username||!email)return alert('Full Name, Username and Registered Email are required.');
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))return alert('Enter a valid registered email address.');
+    const db=v14Sync();
+    if((db.users||[]).some(u=>v14NormalizeUsername(u.username)===username)||(db.accountRequests||[]).some(r=>v14NormalizeUsername(r.username)===username&&r.status==='pending'))return alert('That username already exists or is already pending approval.');
+    if((db.users||[]).some(u=>v14NormalizeEmail(u.email)===email)||(db.accountRequests||[]).some(r=>v14NormalizeEmail(r.email)===email&&r.status==='pending'))return alert('That registered email already exists or is already pending approval.');
+    db.accountRequests.unshift({id:v14Id('ACCTREQ'),fullName,username,email,role,status:'pending',submittedAt:new Date().toISOString()});
+    if(v14Write(db)){alert('Registration submitted. Your account is pending Admin/Super Admin approval.');V14_STATE.screen='welcome';v14Render();}
+  };
+
+  v14DoLogin=function(){
+    const id=document.getElementById('v14LoginId').value.trim(),pass=document.getElementById('v14LoginPass').value,u=v14FindUser(id);
+    if(!u){const db=v14Sync();if((db.accountRequests||[]).some(r=>v14NormalizeUsername(r.username)===v14NormalizeUsername(id)||v14NormalizeEmail(r.email)===v14NormalizeEmail(id)))return alert('This account is still Pending Approval. Please wait for Admin/Super Admin approval.');return alert('Account not found. Please register or contact Admin/Super Admin.');}
+    localStorage.setItem('accra_v14_last_username',id);
+    if(u.status!=='approved')return alert('This account is Pending Approval and cannot log in until approved by Admin or Super Admin.');
+    if(!u.active)return alert('This account is disabled. Kindly contact the Super Admin.');
+    if(V14_DB.systemDisabled&&u.role!=='super_admin')return v14Blocked();
+    if(u.role==='rep'&&V14_STATE.roleChoice!=='rep')return alert('Choose Medical Rep access for this account.');
+    if((u.role==='admin'||u.role==='super_admin')&&V14_STATE.roleChoice!=='admin')return alert('Choose Admin access for this account.');
+    if(u.tempPassword&&u.tempPassword===pass){V14_STATE.pendingPasswordUserId=u.id;V14_STATE.roleChoice=u.role==='rep'?'rep':'admin';V14_STATE.screen='setpass';return v14Render();}
+    if(u.password!==pass)return alert('Incorrect password.');
+    if(u.mustSetPassword||!u.password)return alert('Please use the temporary password or password reset link to create your password.');
+    v14LoginWithUser(u);
+  };
+  v14SavePass=function(){
+    const a=document.getElementById('v14P1').value,b=document.getElementById('v14P2').value;
+    if(a.length<6)return alert('Use at least 6 characters.');if(a!==b)return alert('Passwords do not match.');
+    const db=v14Sync(),u=db.users.find(x=>x.id===V14_STATE.pendingPasswordUserId);if(!u)return alert('Account not found.');
+    u.password=a;u.tempPassword='';u.mustSetPassword=false;u.active=true;u.status='approved';
+    if(v14Write(db)){alert('Password saved successfully.');V14_STATE.pendingPasswordUserId=null;v14LoginWithUser(u);}
+  };
+
+  function v15PrepareReset(u){
+    const db=v14Sync(),token=v15Token(),req={id:v14Id('RSTREQ'),token,userId:u.id,email:u.email,createdAt:new Date().toISOString(),used:false};
+    db.passwordResetRequests.push(req);v14Write(db);
+    const base=location.href.split('#')[0],link=base+'#reset='+encodeURIComponent(token),subject='ACCRA Pharmacy Password Reset',body='Dear '+u.fullName+',\n\nUse the link below to create a new ACCRA Pharmacy password. This link can only be used once.\n\n'+link+'\n\nIf you did not request this reset, please ignore this email.\n';
+    v15Mail(u.email,subject,body);return link;
+  }
+  v14ForgotPassword=function(){
+    const email=prompt('Enter your registered email address:');if(email===null)return;const e=v14NormalizeEmail(email),u=v14Sync().users.find(x=>v14NormalizeEmail(x.email)===e);
+    if(!u)return alert('No approved account was found for that registered email address.');
+    if(!u.active)return alert('This account is disabled. Please contact the Super Admin.');
+    const link=v15PrepareReset(u);alert('A one-time password reset link has been prepared for '+u.email+'. Your email application will open.\n\nReset link:\n'+link);
+  };
+  v14ResetToken=function(token){
+    const db=v14Sync(),r=(db.passwordResetRequests||[]).find(x=>x.token===token&&!x.used);return r;
+  };
+  v14ResetToken=function(token){
+    const db=v14Sync(),r=(db.passwordResetRequests||[]).find(x=>x.token===token&&!x.used);if(!r){document.getElementById('app').innerHTML=`<section class="splash"><div class="splash-card"><h1>Reset Link Invalid</h1><p class="splash-sub">This reset link is invalid or has already been used.</p><button class="btn-main" onclick="location.hash='';V14_STATE.screen='welcome';v14Render()">Back to Login</button></div></section>`;return;}
+    document.getElementById('app').innerHTML=`${v14Top('Password Reset')}<main class="page"><div class="card form-card"><div class="section-head"><div><h1>Create New Password</h1><p>Resetting password for the registered account.</p></div></div><label>New Password</label><input id="v15R1" type="password"><div style="margin-top:14px"><label>Confirm Password</label><input id="v15R2" type="password"></div><div class="form-actions"><button class="btn primary" onclick="v14CompleteTokenReset(${v14Arg(token)})">Save New Password</button></div></div></main>`;
+  };
+  v14CompleteTokenReset=function(token){
+    const a=document.getElementById('v15R1').value,b=document.getElementById('v15R2').value;if(a.length<6)return alert('Use at least 6 characters.');if(a!==b)return alert('Passwords do not match.');
+    const db=v14Sync(),r=(db.passwordResetRequests||[]).find(x=>x.token===token&&!x.used);if(!r)return alert('This reset link is invalid or has already been used.');const u=db.users.find(x=>x.id===r.userId);if(!u)return alert('Account not found.');u.password=a;u.tempPassword='';u.mustSetPassword=false;u.active=true;r.used=true;r.usedAt=new Date().toISOString();if(v14Write(db)){location.hash='';alert('Password reset successfully. You can now log in with your new password.');V14_STATE.screen='welcome';v14Render();}
+  };
+
+  // Admin/Super Admin account approval and Super Admin user management.
+  v14Users=function(){
+    if(!v14IsSuper())return alert('Super Admin access required.');const db=v14Sync(),q=(document.getElementById('v14UserSearch')?.value||'').toLowerCase();
+    const users=(db.users||[]).filter(u=>[u.fullName,u.username,u.email,u.role].some(v=>String(v||'').toLowerCase().includes(q))),pending=(db.accountRequests||[]).filter(r=>r.status==='pending');
+    const rows=users.map(u=>`<div class="v14-list-item"><div class="v14-list-main"><strong>${esc(u.fullName)} ${u.id==='SUPER-MARLEY-KANYINGI'?'<span class="v14-badge">SUPER ADMIN</span>':''}</strong><small>@${esc(u.username)} · ${esc(u.email||'No email')}</small><small>${u.role==='super_admin'?'Super Admin':u.role==='admin'?'Admin':'Medical Rep'} · ${u.active?'ACTIVE':'DISABLED'}</small></div><div class="v14-actions">${u.id==='SUPER-MARLEY-KANYINGI'?'<span class="v14-subtle">Protected account</span>':`${u.active?`<button class="btn" onclick="v14UserAction('disable',${v14Arg(u.id)})">Disable</button>`:`<button class="btn" onclick="v14UserAction('enable',${v14Arg(u.id)})">Enable</button>`}<button class="btn" onclick="v14UserAction('reset',${v14Arg(u.id)})">Reset Password</button><button class="btn" onclick="v14UserAction('delete',${v14Arg(u.id)})">Delete</button>`}</div></div>`).join('');
+    document.getElementById('app').innerHTML=`${v14Top('Super Admin • User Management')}<main class="page"><div class="card admin-card" style="padding:20px"><div class="section-head"><div><h1>User Management</h1><p>${users.length} approved account(s).</p></div></div><div class="v14-actions" style="margin-bottom:14px"><button class="btn primary" onclick="V14_STATE.screen='createUser';v14Render()">+ CREATE USER</button></div><input id="v14UserSearch" class="v14-search" type="search" placeholder="Search name, username, email or role" oninput="v14Users()" value="${esc(q)}"><div class="v14-list">${rows||'<div class="v14-empty">No matching users.</div>'}</div><div class="v14-help">Pending registrations are handled in Approval Queues. Usernames are unique and email addresses are unique.</div></div></main>`;
+  };
+  v14CreateUser=function(){
+    if(!v14IsSuper())return alert('Super Admin access required.');document.getElementById('app').innerHTML=`${v14Top('Create User')}<main class="page"><div class="card form-card"><div class="section-head"><div><h1>Create User</h1><p>The account will be created as Pending Approval.</p></div></div><div class="v14-formgrid"><div class="v14-field"><label>Full Name *</label><input id="v14UNFull" type="text"></div><div class="v14-field"><label>Username *</label><input id="v14UNUser" type="text"></div><div class="v14-field"><label>Registered Email *</label><input id="v14UNEmail" type="email"></div><div class="v14-field"><label>Role *</label><select id="v14UNRole"><option value="rep">Medical Rep</option><option value="admin">Admin</option></select></div></div><div class="v14-warning" style="margin-top:14px">No permanent password is entered here. Approval generates a temporary password and prepares onboarding information for the registered email.</div><div class="form-actions"><button class="btn" onclick="V14_STATE.screen='users';v14Render()">← Back</button><button class="btn primary" onclick="v14SaveUser()">CREATE PENDING ACCOUNT</button></div></div></main>`;
+  };
+  v14SaveUser=function(){
+    const fullName=document.getElementById('v14UNFull').value.trim(),username=v14NormalizeUsername(document.getElementById('v14UNUser').value),email=v14NormalizeEmail(document.getElementById('v14UNEmail').value),role=document.getElementById('v14UNRole').value;if(!fullName||!username||!email)return alert('Full Name, Username and Registered Email are required.');if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))return alert('Enter a valid email address.');const db=v14Sync();if(db.users.some(u=>v14NormalizeUsername(u.username)===username)||db.accountRequests.some(r=>v14NormalizeUsername(r.username)===username&&r.status==='pending'))return alert('That username already exists or is pending approval.');if(db.users.some(u=>v14NormalizeEmail(u.email)===email)||db.accountRequests.some(r=>v14NormalizeEmail(r.email)===email&&r.status==='pending'))return alert('That email already exists or is pending approval.');db.accountRequests.unshift({id:v14Id('ACCTREQ'),fullName,username,email,role,status:'pending',submittedAt:new Date().toISOString(),createdBy:V14_STATE.user.fullName});if(v14Write(db)){alert('Pending account created. Approve it from Approval Queues.');V14_STATE.screen='users';v14Render();}
+  };
+  v14ApproveAccount=function(id,action){
+    if(!v14IsAdmin())return alert('Admin access required.');const db=v14Sync(),r=db.accountRequests.find(x=>x.id===id&&x.status==='pending');if(!r)return alert('Pending account not found.');if(action==='reject'){r.status='rejected';r.resolvedBy=V14_STATE.user.fullName;r.resolvedAt=new Date().toISOString();v14Write(db);return v14ApprovalQueues();}
+    if(db.users.some(u=>v14NormalizeUsername(u.username)===r.username))return alert('Username already exists.');if(db.users.some(u=>v14NormalizeEmail(u.email)===r.email))return alert('Email already exists.');const temp=v15Temp(),u={id:v14Id('USR'),fullName:r.fullName,username:r.username,email:r.email,role:r.role,password:'',tempPassword:temp,active:true,mustSetPassword:true,status:'approved',createdAt:new Date().toISOString(),approvedBy:V14_STATE.user.fullName,approvedAt:new Date().toISOString()};db.users.unshift(u);r.status='approved';r.resolvedBy=V14_STATE.user.fullName;r.resolvedAt=new Date().toISOString();v14Write(db);const subject='ACCRA Pharmacy Account Approved',body='Dear '+u.fullName+',\n\nYour ACCRA Pharmacy account has been approved.\nUsername: '+u.username+'\nTemporary password: '+temp+'\n\nUse the ACCRA Pharmacy HTML file to log in. The temporary password is for first login only; you will be required to create your own password.\n';v15Mail(u.email,subject,body);alert('Account approved. Temporary password generated and onboarding email prepared for '+u.email+'.\n\nTemporary password: '+temp);v14ApprovalQueues();
+  };
+  v14UserAction=function(action,id){if(!v14IsSuper())return;const db=v14Sync(),u=db.users.find(x=>x.id===id);if(!u||u.id==='SUPER-MARLEY-KANYINGI')return;if(action==='disable')u.active=false;if(action==='enable')u.active=true;if(action==='delete'){if(!confirm('Delete '+u.fullName+' permanently?'))return;db.users=db.users.filter(x=>x.id!==id);}if(action==='reset'){if(!u.email)return alert('This user has no registered email.');const link=v15PrepareReset(u);alert('A one-time reset link has been prepared for '+u.email+'.\n\nReset link:\n'+link);}if(v14Write(db))v14Users();};
+
+  // Approval queue: preserve existing HCP/pharmacy request flow and add accounts + edit requests.
+  v14ApprovalQueues=function(){
+    if(!v14IsAdmin())return alert('Admin access required.');const db=v14Sync(),hp=(db.hcpRequests||[]).filter(r=>r.status==='pending'),pp=(db.pharmacyRequests||[]).filter(r=>r.status==='pending'),ar=(db.accountRequests||[]).filter(r=>r.status==='pending'),he=(db.hcpEditRequests||[]).filter(r=>r.status==='pending'),pe=(db.pharmacyEditRequests||[]).filter(r=>r.status==='pending');
+    document.getElementById('app').innerHTML=`${v14Top('Approval Queues')}<main class="page"><div class="section-head"><div><h1>Approval Queues</h1><p>Admin/Super Admin approval centre for accounts and customer changes.</p></div></div>
+      <div class="card admin-card" style="padding:18px;margin-bottom:16px"><h2>Account Registrations <span class="v14-count">(${ar.length} pending)</span></h2>${ar.length?`<div class="v14-list">${ar.map(r=>`<div class="v14-list-item"><div class="v14-list-main"><strong>${esc(r.fullName)}</strong><small>@${esc(r.username)} · ${esc(r.email)} · ${r.role==='admin'?'Admin':'Medical Rep'}</small><small>Submitted ${new Date(r.submittedAt).toLocaleString()}</small></div><div class="v14-actions"><button class="btn primary" onclick="v14ApproveAccount(${v14Arg(r.id)},'approve')">Approve</button><button class="btn" onclick="v14ApproveAccount(${v14Arg(r.id)},'reject')">Reject</button></div></div>`).join('')}</div>`:'<div class="v14-empty">No pending account registrations.</div>'}</div>
+      <div class="card admin-card" style="padding:18px;margin-bottom:16px"><h2>HCP Change Requests <span class="v14-count">(${he.length} pending)</span></h2>${he.length?`<div class="v14-list">${he.map(r=>`<div class="v14-list-item"><div class="v14-list-main"><strong>${esc(r.after.name)}</strong><small>Original: ${esc(r.before.name)} · ${esc(r.before.facility||'')}</small><small>Requested by ${esc(r.submittedBy)} · ${new Date(r.submittedAt).toLocaleString()}</small></div><div class="v14-actions"><button class="btn primary" onclick="v15ResolveEdit('hcp',${v14Arg(r.id)},'approve')">Approve</button><button class="btn" onclick="v15ResolveEdit('hcp',${v14Arg(r.id)},'reject')">Reject</button></div></div>`).join('')}</div>`:'<div class="v14-empty">No pending HCP changes.</div>'}</div>
+      <div class="card admin-card" style="padding:18px;margin-bottom:16px"><h2>Pharmacy Change Requests <span class="v14-count">(${pe.length} pending)</span></h2>${pe.length?`<div class="v14-list">${pe.map(r=>`<div class="v14-list-item"><div class="v14-list-main"><strong>${esc(r.after.name)}</strong><small>Original: ${esc(r.before.name)} · ${esc(r.before.town||'')}</small><small>Requested by ${esc(r.submittedBy)} · ${new Date(r.submittedAt).toLocaleString()}</small></div><div class="v14-actions"><button class="btn primary" onclick="v15ResolveEdit('pharmacy',${v14Arg(r.id)},'approve')">Approve</button><button class="btn" onclick="v15ResolveEdit('pharmacy',${v14Arg(r.id)},'reject')">Reject</button></div></div>`).join('')}</div>`:'<div class="v14-empty">No pending pharmacy changes.</div>'}</div>
+      <div class="card admin-card" style="padding:18px;margin-bottom:16px"><h2>HCP Requests <span class="v14-count">(${hp.length} pending)</span></h2>${hp.length?`<div class="v14-list">${hp.map(r=>`<div class="v14-list-item"><div class="v14-list-main"><strong>${esc(r.name)}</strong><small>${esc(r.facility)} · ${esc(r.location||'')}</small><small>${esc(r.specialty)} · Submitted by ${esc(r.submittedBy)}</small></div><div class="v14-actions"><button class="btn" onclick="v14EditRequest('hcp',${v14Arg(r.id)})">Edit</button><button class="btn primary" onclick="v14ResolveRequest('hcp',${v14Arg(r.id)},'approve')">Approve</button><button class="btn" onclick="v14ResolveRequest('hcp',${v14Arg(r.id)},'reject')">Reject</button></div></div>`).join('')}</div>`:'<div class="v14-empty">No pending HCP requests.</div>'}</div>
+      <div class="card admin-card" style="padding:18px"><h2>Pharmacy Requests <span class="v14-count">(${pp.length} pending)</span></h2>${pp.length?`<div class="v14-list">${pp.map(r=>`<div class="v14-list-item"><div class="v14-list-main"><strong>${esc(r.name)}</strong><small>${esc(r.location||'')} · ${esc(r.town||'')} · ${esc(r.county||'')}</small><small>${esc(r.phone||'')} · Submitted by ${esc(r.submittedBy)}</small></div><div class="v14-actions"><button class="btn" onclick="v14EditRequest('pharmacy',${v14Arg(r.id)})">Edit</button><button class="btn primary" onclick="v14ResolveRequest('pharmacy',${v14Arg(r.id)},'approve')">Approve</button><button class="btn" onclick="v14ResolveRequest('pharmacy',${v14Arg(r.id)},'reject')">Reject</button></div></div>`).join('')}</div>`:'<div class="v14-empty">No pending pharmacy requests.</div>'}</div>
+    </main>`;
+  };
+
+  // Client edit/delete helpers.
+  function v15Fields(type,x){return type==='hcp'?`<div class="v14-formgrid"><div class="v14-field"><label>Name *</label><input id="v15Name" value="${esc(x.name||'')}"></div><div class="v14-field"><label>Facility *</label><input id="v15Facility" value="${esc(x.facility||'')}"></div><div class="v14-field"><label>Specialty</label><input id="v15Spec" value="${esc(x.specialty||'')}"></div><div class="v14-field"><label>Sub-Specialty</label><input id="v15Sub" value="${esc(x.subSpecialty||'')}"></div><div class="v14-field"><label>Location</label><input id="v15Loc" value="${esc(x.location||'')}"></div><div class="v14-field"><label>Phone</label><input id="v15Phone" value="${esc(x.phone||'')}"></div><div class="v14-field"><label>Email</label><input id="v15Email" value="${esc(x.email||'')}"></div></div>`:`<div class="v14-formgrid"><div class="v14-field"><label>Pharmacy Name *</label><input id="v15Name" value="${esc(x.name||'')}"></div><div class="v14-field"><label>Type</label><input id="v15Type" value="${esc(x.type||'')}"></div><div class="v14-field"><label>Owner / Contact</label><input id="v15Owner" value="${esc(x.owner||'')}"></div><div class="v14-field"><label>Phone</label><input id="v15Phone" value="${esc(x.phone||'')}"></div><div class="v14-field"><label>Email</label><input id="v15Email" value="${esc(x.email||'')}"></div><div class="v14-field"><label>Location</label><input id="v15Loc" value="${esc(x.location||'')}"></div><div class="v14-field"><label>County</label><input id="v15County" value="${esc(x.county||'')}"></div><div class="v14-field"><label>Town</label><input id="v15Town" value="${esc(x.town||'')}"></div><div class="v14-field"><label>Distributor</label><input id="v15Dist" value="${esc(x.distributor||'')}"></div></div>`;}
+  function v15ReadFields(type){if(type==='hcp')return{name:document.getElementById('v15Name').value.trim(),facility:document.getElementById('v15Facility').value.trim(),specialty:document.getElementById('v15Spec').value.trim(),subSpecialty:document.getElementById('v15Sub').value.trim(),location:document.getElementById('v15Loc').value.trim(),phone:document.getElementById('v15Phone').value.trim(),email:document.getElementById('v15Email').value.trim()};return{name:document.getElementById('v15Name').value.trim(),type:document.getElementById('v15Type').value.trim(),owner:document.getElementById('v15Owner').value.trim(),phone:document.getElementById('v15Phone').value.trim(),email:document.getElementById('v15Email').value.trim(),location:document.getElementById('v15Loc').value.trim(),county:document.getElementById('v15County').value.trim(),town:document.getElementById('v15Town').value.trim(),distributor:document.getElementById('v15Dist').value.trim()};}
+  v14EditClient=function(){
+    if(!v14IsAdmin())return alert('Admin access required.');const db=v14Sync(),type=V14_STATE.editRequest?.type,id=V14_STATE.editRequest?.id,arr=type==='hcp'?db.hcps:db.pharmacies,x=arr.find(z=>z.id===id);if(!x)return alert('Client not found.');
+    document.getElementById('app').innerHTML=`${v14Top('Edit Approved Client')}<main class="page"><div class="card form-card"><div class="section-head"><div><h1>Edit Approved ${type==='hcp'?'HCP':'Pharmacy'}</h1><p>Admin changes apply directly to the approved master.</p></div></div>${v15Fields(type,x)}<div class="form-actions"><button class="btn" onclick="V14_STATE.screen='directories';v14Render()">← Back</button><button class="btn primary" onclick="v15SaveAdminClient(${v14Arg(type)},${v14Arg(id)})">Save Changes</button></div></div></main>`;
+  };
+  v15SaveAdminClient=function(type,id){const db=v14Sync(),arr=type==='hcp'?db.hcps:db.pharmacies,x=arr.find(z=>z.id===id),vals=v15ReadFields(type);if(!x)return;if(!vals.name||(type==='hcp'&&!vals.facility))return alert('Required fields are missing.');Object.assign(x,vals);x.updatedBy=V14_STATE.user.fullName;x.updatedAt=new Date().toISOString();if(v14Write(db)){alert('Approved client updated.');V14_STATE.screen='directories';v14Render();}};
+  v15DeleteClient=function(type,id){if(!v14IsAdmin())return;const db=v14Sync(),arr=type==='hcp'?db.hcps:db.pharmacies,x=arr.find(z=>z.id===id);if(!x)return;if(!confirm('Delete '+x.name+' from the approved master?'))return;if(type==='hcp')db.hcps=db.hcps.filter(z=>z.id!==id);else db.pharmacies=db.pharmacies.filter(z=>z.id!==id);if(v14Write(db))v14Directories();};
+  v15RequestEdit=function(type,id){const db=v14Sync(),arr=type==='hcp'?db.hcps:db.pharmacies,x=arr.find(z=>z.id===id);if(!x)return;const pending=(type==='hcp'?db.hcpEditRequests:db.pharmacyEditRequests).some(r=>r.clientId===id&&r.status==='pending');if(pending)return alert('An edit request for this client is already pending approval.');V14_STATE.editRequest={type,id,mode:'rep'};V14_STATE.screen='editClient';v14Render();};
+  v15SaveRepEdit=function(type,id){const db=v14Sync(),arr=type==='hcp'?db.hcps:db.pharmacies,x=arr.find(z=>z.id===id),vals=v15ReadFields(type);if(!x)return;if(!vals.name||(type==='hcp'&&!vals.facility))return alert('Required fields are missing.');const target=type==='hcp'?db.hcpEditRequests:db.pharmacyEditRequests;target.unshift({id:v14Id(type==='hcp'?'HCPEdit':'PhEdit'),clientId:id,before:{...x},after:{...x,...vals},status:'pending',submittedBy:V14_STATE.user.fullName,submittedAt:new Date().toISOString()});if(v14Write(db)){alert('Change request submitted for Admin/Super Admin approval. The approved master has not been changed.');V14_STATE.screen=type==='hcp'?'hpcs':'pharmacies';v14Render();}};
+  v15ResolveEdit=function(type,id,action){if(!v14IsAdmin())return;const db=v14Sync(),arr=type==='hcp'?db.hcpEditRequests:db.pharmacyEditRequests,r=arr.find(x=>x.id===id&&x.status==='pending');if(!r)return;r.status=action==='approve'?'approved':'rejected';r.resolvedBy=V14_STATE.user.fullName;r.resolvedAt=new Date().toISOString();if(action==='approve'){const master=(type==='hcp'?db.hcps:db.pharmacies).find(x=>x.id===r.clientId);if(master)Object.assign(master,r.after,{updatedBy:r.submittedBy,updatedAt:r.resolvedAt});}if(v14Write(db))v14ApprovalQueues();};
+
+  v14EditClient=function(){
+    const type=V14_STATE.editRequest?.type,id=V14_STATE.editRequest?.id,mode=V14_STATE.editRequest?.mode||'admin',db=v14Sync(),arr=type==='hcp'?db.hcps:db.pharmacies,x=arr.find(z=>z.id===id);if(!x)return alert('Client not found.');
+    document.getElementById('app').innerHTML=`${v14Top(mode==='rep'?'Request Client Change':'Edit Approved Client')}<main class="page"><div class="card form-card"><div class="section-head"><div><h1>${mode==='rep'?'Request Change':'Edit'} ${type==='hcp'?'HCP':'Pharmacy'}</h1><p>${mode==='rep'?'Your changes will be submitted for Admin/Super Admin approval. The approved record will not change now.':'Changes apply directly to the approved master.'}</p></div></div>${v15Fields(type,x)}<div class="form-actions"><button class="btn" onclick="V14_STATE.screen='${mode==='rep'?(type==='hcp'?'hpcs':'pharmacies'):'directories'}';v14Render()">← Back</button><button class="btn primary" onclick="${mode==='rep'?`v15SaveRepEdit(${v14Arg(type)},${v14Arg(id)})`:`v15SaveAdminClient(${v14Arg(type)},${v14Arg(id)})`}">${mode==='rep'?'Submit Change Request':'Save Changes'}</button></div></div></main>`;
+  };
+
+  // Preserve the original selection screens; only add the requested edit control.
+  const _v14HCPs=v14HCPs,_v14Pharmacies=v14Pharmacies;
+  v14HCPs=function(){
+    const db=v14Sync(),q=(document.getElementById('v14HSearch')?.value||'').trim().toLowerCase();let rows=(db.hcps||[]).filter(x=>x.status==='approved');if(q)rows=rows.filter(x=>[x.name,x.facility,x.location,x.specialty,x.subSpecialty,x.phone].some(v=>String(v||'').toLowerCase().includes(q)));
+    document.getElementById('app').innerHTML=`${v14Top('HCP Selection')}<main class="page">${v14Steps(2)}<div class="section-head"><div><h1>Doctor / HCP</h1><p>Approved HCP directory${V14_STATE.selectedSpecialty?` · ${esc(V14_STATE.selectedSpecialty)}`:''}</p></div><span class="v14-count">${rows.length} shown</span></div><input id="v14HSearch" class="v14-search" type="search" placeholder="Search HCP, facility, specialty, location or phone" oninput="v14HCPs()" value="${esc(q)}"><div class="v14-actions" style="margin-bottom:14px"><button class="btn primary" onclick="V14_STATE.screen='otherHcp';v14Render()">+ OTHER HCP / NOT ON LIST</button><button class="btn" onclick="V14_STATE.screen='customer';v14Render()">← Customer Type</button></div>${rows.length?`<div class="v14-list">${rows.map(x=>`<div class="v14-list-item"><div class="v14-list-main"><strong>${esc(x.name)}</strong><small>${esc(x.facility)} · ${esc(x.location||'')}</small><small>${esc(x.specialty||'')}${x.subSpecialty?` · ${esc(x.subSpecialty)}`:''} ${x.phone?`· ${esc(x.phone)}`:''}</small></div><div class="v14-actions"><button class="btn" onclick="v15RequestEdit('hcp',${v14Arg(x.id)})">Edit / Request Change</button><button class="btn primary" onclick="v14SelectHCP(${v14Arg(x.id)})">Select</button></div></div>`).join('')}</div>`:'<div class="v14-empty">No approved HCPs are currently registered.<br><br>Use <strong>OTHER HCP / NOT ON LIST</strong> to submit one.</div>'}</main>`;
+  };
+  v14Pharmacies=function(){
+    const db=v14Sync(),q=(document.getElementById('v14PhSearch')?.value||'').trim().toLowerCase();let rows=(db.pharmacies||[]).filter(x=>x.status==='approved');if(q)rows=rows.filter(x=>[x.name,x.type,x.owner,x.phone,x.email,x.location,x.county,x.town,x.distributor].some(v=>String(v||'').toLowerCase().includes(q)));
+    document.getElementById('app').innerHTML=`${v14Top('Pharmacy Selection')}<main class="page">${v14Steps(2)}<div class="section-head"><div><h1>Pharmacy / Pharmacist</h1><p>Approved pharmacy directory${V14_STATE.selectedSpecialty?` · Call context: ${esc(V14_STATE.selectedSpecialty)}`:''}</p></div><span class="v14-count">${rows.length} shown</span></div><input id="v14PhSearch" class="v14-search" type="search" placeholder="Search pharmacy, town, county, owner, phone or distributor" oninput="v14Pharmacies()" value="${esc(q)}"><div class="v14-actions" style="margin-bottom:14px"><button class="btn primary" onclick="V14_STATE.screen='otherPharmacy';v14Render()">+ OTHER PHARMACY / NOT ON LIST</button><button class="btn" onclick="V14_STATE.screen='customer';v14Render()">← Customer Type</button></div>${rows.length?`<div class="v14-list">${rows.map(x=>`<div class="v14-list-item"><div class="v14-list-main"><strong>${esc(x.name)}</strong><small>${esc(x.type||'Pharmacy')} · ${esc(x.location||'')}, ${esc(x.town||'')}, ${esc(x.county||'')}</small><small>${esc(x.owner||'')} ${x.phone?`· ${esc(x.phone)}`:''} ${x.distributor?`· ${esc(x.distributor)}`:''}</small></div><div class="v14-actions"><button class="btn" onclick="v15RequestEdit('pharmacy',${v14Arg(x.id)})">Edit / Request Change</button><button class="btn primary" onclick="v14SelectPharmacy(${v14Arg(x.id)})">Select</button></div></div>`).join('')}</div>`:'<div class="v14-empty">No approved pharmacies are currently registered.<br><br>Use <strong>OTHER PHARMACY / NOT ON LIST</strong> to submit an approval request.</div>'}</main>`;
+  };
+
+  // Approved directories with admin edit/delete controls.
+  v14Directories=function(){
+    if(!v14IsAdmin())return alert('Admin access required.');const db=v14Sync(),hcps=(db.hcps||[]).filter(x=>x.status==='approved'),ph=(db.pharmacies||[]).filter(x=>x.status==='approved');
+    document.getElementById('app').innerHTML=`${v14Top('Customer Directories')}<main class="page"><div class="card" style="padding:18px;margin-bottom:16px"><div class="section-head"><div><h1>Approved HCP Directory</h1><p>${hcps.length} approved HCP(s).</p></div></div>${hcps.length?`<div class="v14-table-wrap"><table class="v14-table"><thead><tr><th>Name</th><th>Facility</th><th>Location</th><th>Specialty</th><th>Phone</th><th>Actions</th></tr></thead><tbody>${hcps.map(x=>`<tr><td>${esc(x.name)}</td><td>${esc(x.facility)}</td><td>${esc(x.location)}</td><td>${esc(x.specialty)}</td><td>${esc(x.phone||'')}</td><td><button class="btn" onclick="V14_STATE.editRequest={type:'hcp',id:${v14Arg(x.id)},mode:'admin'};V14_STATE.screen='editClient';v14Render()">Edit</button> <button class="btn" onclick="v15DeleteClient('hcp',${v14Arg(x.id)})">Delete</button></td></tr>`).join('')}</tbody></table></div>`:'<div class="v14-empty">No approved HCPs.</div>'}</div><div class="card" style="padding:18px"><div class="section-head"><div><h1>Approved Pharmacy Directory</h1><p>${ph.length} approved pharmacy(ies).</p></div></div>${ph.length?`<div class="v14-table-wrap"><table class="v14-table"><thead><tr><th>Pharmacy</th><th>Type</th><th>Owner</th><th>Location</th><th>County</th><th>Town</th><th>Phone</th><th>Actions</th></tr></thead><tbody>${ph.map(x=>`<tr><td>${esc(x.name)}</td><td>${esc(x.type||'')}</td><td>${esc(x.owner||'')}</td><td>${esc(x.location||'')}</td><td>${esc(x.county||'')}</td><td>${esc(x.town||'')}</td><td>${esc(x.phone||'')}</td><td><button class="btn" onclick="V14_STATE.editRequest={type:'pharmacy',id:${v14Arg(x.id)},mode:'admin'};V14_STATE.screen='editClient';v14Render()">Edit</button> <button class="btn" onclick="v15DeleteClient('pharmacy',${v14Arg(x.id)})">Delete</button></td></tr>`).join('')}</tbody></table></div>`:'<div class="v14-empty">No approved pharmacies.</div>'}</div><div class="form-actions"><button class="btn" onclick="V14_STATE.screen='admin';v14Render()">← Back</button></div></main>`;
+  };
+
+  // Bulk Excel paste import: approved immediately so the imported master is live to reps.
+  v14BulkImport=function(){
+    if(!v14IsSuper())return alert('Super Admin access required.');document.getElementById('app').innerHTML=`${v14Top('Bulk HCP / Pharmacy Import')}<main class="page"><div class="card" style="padding:20px"><div class="section-head"><div><h1>Bulk HCP / Pharmacy Import</h1><p>Paste a large table copied directly from Excel. Tab-separated columns are supported.</p></div><span class="v14-badge">SUPER ADMIN</span></div><div class="v14-warning"><strong>Recommended headers — Pharmacy:</strong> Pharmacy Name, Type, Owner/Contact, Location, County, Town, Phone, Email, Distributor.<br><strong>Recommended headers — HCP:</strong> HCP Name, Facility, Specialty, Sub-Specialty, Location, Phone, Email.<br>Imported records are added directly to the approved master and become visible to Medical Reps immediately.</div><div style="margin-top:14px"><label>Record Type</label><select id="v15ImportType"><option value="pharmacy">Pharmacy</option><option value="hcp">HCP</option></select></div><div style="margin-top:14px"><label>Paste Excel Data</label><textarea id="v15ImportData" rows="18" placeholder="Copy cells from Excel and paste here..."></textarea></div><div class="form-actions"><button class="btn" onclick="V14_STATE.screen='admin';v14Render()">← Back</button><button class="btn primary" onclick="v15RunImport()">Import to Live Directory</button></div></div></main>`;
+  };
+  function v15Rows(text){const lines=String(text||'').split(/\r?\n/).filter(x=>x.trim());if(lines.length<2)return [];const delim=lines[0].includes('\t')?'\t':',';return lines.map(line=>{let out=[],cur='',quote=false;for(let i=0;i<line.length;i++){const c=line[i];if(c==='"'){if(quote&&line[i+1]==='"'){cur+='"';i++;}else quote=!quote;}else if(c===delim&&!quote){out.push(cur.trim());cur='';}else cur+=c;}out.push(cur.trim());return out;});}
+  function v15Header(h){return String(h||'').toLowerCase().replace(/[^a-z0-9]/g,'');}
+  v15RunImport=function(){const type=document.getElementById('v15ImportType').value,text=document.getElementById('v15ImportData').value,rows=v15Rows(text);if(!rows.length)return alert('Paste at least a header row and one data row.');const headers=rows[0].map(v15Header),idx=(...names)=>{for(const n of names){const i=headers.indexOf(v15Header(n));if(i>=0)return i;}return -1;},val=(r,...names)=>{const i=idx(...names);return i>=0?String(r[i]||'').trim():''};const db=v14Sync();let added=0,skipped=0;
+    if(type==='pharmacy')rows.slice(1).forEach(r=>{const x={id:v14Id('PH'),name:val(r,'Pharmacy Name','Pharmacy','Name'),type:val(r,'Type','Pharmacy Type'),owner:val(r,'Owner/Contact','Owner','Contact Person'),location:val(r,'Location','Physical Location'),county:val(r,'County'),town:val(r,'Town'),phone:val(r,'Phone','Telephone','Mobile'),email:val(r,'Email','E-mail'),distributor:val(r,'Distributor','Buying Distributor'),status:'approved',source:'Bulk Excel Import',approvedBy:V14_STATE.user.fullName,approvedAt:new Date().toISOString()};if(!x.name){skipped++;return;}const dup=(db.pharmacies||[]).some(p=>v14NormalizeText(p.name)===v14NormalizeText(x.name)&&v14NormalizeText(p.town)===v14NormalizeText(x.town));if(dup){skipped++;return;}db.pharmacies.unshift(x);added++;});
+    else rows.slice(1).forEach(r=>{const x={id:v14Id('HCP'),name:val(r,'HCP Name','Doctor Name','Name'),facility:val(r,'Facility','Institution','Hospital'),specialty:val(r,'Specialty'),subSpecialty:val(r,'Sub-Specialty','Sub Specialty','Subspecialty'),location:val(r,'Location'),phone:val(r,'Phone','Telephone','Mobile'),email:val(r,'Email','E-mail'),status:'approved',source:'Bulk Excel Import',approvedBy:V14_STATE.user.fullName,approvedAt:new Date().toISOString()};if(!x.name||!x.facility){skipped++;return;}const dup=(db.hcps||[]).some(p=>v14NormalizeText(p.name)===v14NormalizeText(x.name)&&v14NormalizeText(p.facility)===v14NormalizeText(x.facility));if(dup){skipped++;return;}db.hcps.unshift(x);added++;});
+    db.dataImportLog.unshift({id:v14Id('IMPORT'),type,added,skipped,importedBy:V14_STATE.user.fullName,importedAt:new Date().toISOString()});if(v14Write(db)){alert('Import complete. Added '+added+' record(s); skipped '+skipped+' duplicate/invalid row(s). The approved records are now live in the rep directory.');V14_STATE.screen='directories';v14Render();}
+  };
+
+  // Admin dashboard: retain original cards and add functional import card; approval count includes all queues.
+  v14Admin=function(){const db=v14Sync(),pendingH=(db.hcpRequests||[]).filter(r=>r.status==='pending').length,pendingP=(db.pharmacyRequests||[]).filter(r=>r.status==='pending').length,pendingA=(db.accountRequests||[]).filter(r=>r.status==='pending').length,pendingE=(db.hcpEditRequests||[]).filter(r=>r.status==='pending').length+(db.pharmacyEditRequests||[]).filter(r=>r.status==='pending').length;document.getElementById('app').innerHTML=`${v14Top('Admin Dashboard')}<main class="page"><div class="card" style="padding:18px 20px;margin-bottom:16px"><div style="font-size:12px;color:var(--muted)">${v14IsSuper()?'SUPER ADMIN':'ADMIN'}</div><div style="font-size:23px;font-weight:1000">${esc(V14_STATE.user?.fullName||'')}</div><div class="v14-help">Central controls for users, customers, products, mappings and reports.</div></div><div class="v14-cardgrid"><button class="v14-actioncard v14-card-accent" onclick="V14_STATE.screen='reports';v14Render()"><h3>📊 Reports</h3><p>Filter and export Medical Rep calls.</p></button><button class="v14-actioncard" onclick="V14_STATE.screen='directories';v14Render()"><h3>👥 HCP / Pharmacy Directories</h3><p>View, edit and delete approved customer masters.</p></button><button class="v14-actioncard v14-card-accent-red" onclick="V14_STATE.screen='hcppending';v14Render()"><h3>✅ Approval Queues</h3><p>${pendingA} accounts · ${pendingH} HCP · ${pendingP} Pharmacy · ${pendingE} client changes pending.</p></button><button class="v14-actioncard" onclick="V14_STATE.screen='imports';v14Render()"><h3>📥 Bulk HCP / Pharmacy Import</h3><p>Super Admin: paste large Excel tables into the live master directories.</p></button><button class="v14-actioncard" onclick="V14_STATE.screen='adminProducts';v14Render()"><h3>📦 Products</h3><p>Maintain all 25 ACCRA products and flyers.</p></button><button class="v14-actioncard" onclick="V14_STATE.screen='specialties';v14Render()"><h3>🩺 Specialties</h3><p>Add specialty entries for Medical Reps.</p></button><button class="v14-actioncard" onclick="V14_STATE.screen='mapping';v14Render()"><h3>🧭 Specialty Mapping</h3><p>Map products and maintain priority availability.</p></button><button class="v14-actioncard" onclick="V14_STATE.screen='adminForm';v14Render()"><h3>📄 Flyer Management</h3><p>Add or replace product flyers.</p></button>${v14IsSuper()?`<button class="v14-actioncard v14-card-accent" onclick="V14_STATE.screen='users';v14Render()"><h3>🔐 User Management</h3><p>Manage approved accounts and password resets.</p></button><button class="v14-actioncard v14-card-accent-red" onclick="V14_STATE.screen='viability';v14Render()"><h3>🎯 Specialty Viability</h3><p>Move specialties into or out of the limited-fit tail.</p></button><button class="v14-actioncard" onclick="V14_STATE.screen='system';v14Render()"><h3>⚙️ System Control</h3><p>Disable/enable and refresh platform settings.</p></button>`:''}<button class="v14-actioncard" onclick="V14_STATE.screen='welcome';V14_STATE.user=null;v14Render()"><h3>↩ Exit</h3><p>Return to access selection.</p></button></div></main>`;};
+
+  // Make the edit form distinguish Admin direct edit from Rep request.
+  const _oldV15RequestEdit=v15RequestEdit;v15RequestEdit=function(type,id){V14_STATE.editRequest={type,id,mode:'rep'};V14_STATE.screen='editClient';v14Render();};
+
+  /* V15 functional-only patch: preserve V14 opening/navigation and add requested functions. */
+  const V15_MAX_CUSTOMERS=40;
+  function v15TempPassword(){return 'Accra-'+Math.random().toString(36).slice(2,7).toUpperCase()+'!';}
+  function v15CurrentUsername(){return V14_STATE.user?.username||'';}
+  function v15UserByNameOrUsername(v){const db=v14Sync(),n=v14NormalizeText(v),u=v14NormalizeUsername(v);return db.users.find(x=>v14NormalizeText(x.fullName)===n||v14NormalizeUsername(x.username)===u)||null;}
+  function v15AllocatedCount(username){const db=v14Sync(),u=v14NormalizeUsername(username);return (db.hcps||[]).concat(db.pharmacies||[]).filter(x=>(x.status==='approved'||x.status==='pending')&&v14NormalizeUsername(x.ownerUsername||x.submittedByUsername||'')===u).length;}
+  function v15CanAllocate(username){return v15AllocatedCount(username)<V15_MAX_CUSTOMERS;}
+  function v15Assign(x,username,fullName){x.ownerUsername=username;x.ownerName=fullName;x.allocatedAt=new Date().toISOString();}
+  function v15ClassSelect(id,val){return `<select id="${id}"><option value="">Select Class</option><option ${val==='A'?'selected':''}>A</option><option ${val==='B'?'selected':''}>B</option><option ${val==='C'?'selected':''}>C</option></select>`;}
+  function v15UserOptions(selected,includeSuper=true){const db=v14Sync();return (db.users||[]).filter(u=>u.active!==false&&(includeSuper||u.role!=='super_admin')).map(u=>`<option value="${esc(u.username)}" ${v14NormalizeUsername(selected)===v14NormalizeUsername(u.username)?'selected':''}>${esc(u.fullName)}${u.role==='super_admin'?' (Super Admin)':''}</option>`).join('');}
+
+  // User-name based login, with approved-name dropdown and self-service request when absent.
+  v14Login=function(){
+    const label=V14_STATE.roleChoice==='admin'?'Admin':'Medical Rep',db=v14Sync();
+    const eligible=(db.users||[]).filter(u=>u.active!==false&&(V14_STATE.roleChoice==='admin'?(u.role==='admin'||u.role==='super_admin'):u.role==='rep'));
+    document.getElementById('app').innerHTML=`${v14Top(label+' Login')}<main class="page"><div class="card form-card">
+      <div class="section-head"><div><h1>${label} Login</h1><p>Select your registered name. Your username is your registered name in the system.</p></div><span class="v14-badge">SECURE USER ACCESS</span></div>
+      <label>Username / Registered Name</label><select id="v15LoginUser"><option value="">Select your name</option>${eligible.map(u=>`<option value="${esc(u.id)}">${esc(u.fullName)}</option>`).join('')}</select>
+      <div style="margin-top:14px"><label>Temporary / Current Password</label><input id="v14LoginPass" type="password" placeholder="Enter password"></div>
+      <div class="v14-help" style="margin-top:10px">If your name is not listed, use <strong>CREATE ACCOUNT REQUEST</strong>. The account must be approved by the Super Admin before it can be used.</div>
+      <div class="form-actions"><button class="btn" onclick="v14Back()">← Back</button><div class="v14-actions"><button class="btn" onclick="v15RequestAccount()">CREATE ACCOUNT REQUEST</button><button class="btn primary" onclick="v15DoLogin()">Log in</button></div></div>
+    </div></main>`;
+  };
+  v15DoLogin=function(){
+    const db=v14Sync(),id=document.getElementById('v15LoginUser')?.value,pass=document.getElementById('v14LoginPass')?.value||'',u=db.users.find(x=>x.id===id);
+    if(!u)return alert('Please select your registered name.');
+    if(u.active===false)return alert('This account is disabled. Kindly contact the Super Admin.');
+    if(db.systemDisabled&&u.role!=='super_admin')return v14Blocked();
+    if(!u.password||u.mustSetPassword){if(pass!==u.password)return alert('Use the temporary password issued for this account.');V14_STATE.pendingPasswordUserId=u.id;V14_STATE.roleChoice=u.role==='rep'?'rep':'admin';V14_STATE.screen='setpass';return v14Render();}
+    if(pass!==u.password)return alert('Incorrect password.');
+    V14_STATE.user={...u};V14_STATE.screen=u.role==='rep'?'mr':'admin';V14_STATE.selectedSpecialty=null;V14_STATE.audience=null;V14_STATE.customer=null;V14_STATE.selected=[];V14_STATE.candidates=[];v14Render();
+  };
+
+  // Super Admin creates named users and receives a one-time temporary password.
+  v14CreateUser=function(){if(!v14IsSuper())return alert('Super Admin access required.');document.getElementById('app').innerHTML=`${v14Top('Add User Name')}<main class="page"><div class="card form-card"><div class="section-head"><div><h1>Add User Name</h1><p>Add the name first; the system generates the temporary password.</p></div></div><label>Full Name *</label><input id="v15UNFull" type="text"><div style="margin-top:14px"><label>Role *</label><select id="v15UNRole"><option value="rep">Medical Rep</option><option value="admin">Admin</option></select></div><div class="v14-help" style="margin-top:10px">One registered name can only have one account.</div><div class="form-actions"><button class="btn" onclick="V14_STATE.screen='users';v14Render()">← Back</button><button class="btn primary" onclick="v15SaveUser()">ADD USER</button></div></div></main>`;};
+  v15SaveUser=function(){
+    const fullName=document.getElementById('v15UNFull').value.trim(),role=document.getElementById('v15UNRole').value;if(!fullName)return alert('Full Name is required.');
+    const db=v14Sync(),norm=v14NormalizeText(fullName);if(db.users.some(u=>v14NormalizeText(u.fullName)===norm))return alert('This user name already has an account. Please select the existing name.');
+    const username=fullName.toLowerCase().replace(/[^a-z0-9]+/g,'.').replace(/^\.|\.$/g,'');let temp=v15TempPassword();while(db.users.some(u=>v14NormalizeUsername(u.username)===v14NormalizeUsername(username)))username+='.'+Math.floor(Math.random()*99);
+    const u={id:v14Id('USR'),fullName,username,role,password:temp,active:true,mustSetPassword:true,createdAt:new Date().toISOString()};db.users.push(u);
+    if(v14Write(db)){alert('User added. Temporary password for '+fullName+': '+temp+'\n\nGive this password to the user. It will open the system once and require a new password.');V14_STATE.screen='users';v14Render();}
+  };
+  v15RequestAccount=function(){
+    const db=v14Sync();let name=prompt('Enter your full name as it should appear in the system:');if(name===null)return;name=name.trim();if(!name)return;
+    if(db.users.some(u=>v14NormalizeText(u.fullName)===v14NormalizeText(name)))return alert('That name already exists. Please select it from the username list.');
+    if((db.accountRequests||[]).some(r=>r.status==='pending'&&v14NormalizeText(r.fullName)===v14NormalizeText(name)))return alert('An account request for this name is already pending approval.');
+    db.accountRequests=db.accountRequests||[];db.accountRequests.unshift({id:v14Id('ACCTREQ'),fullName:name,role:V14_STATE.roleChoice==='admin'?'admin':'rep',status:'pending',requestedAt:new Date().toISOString()});
+    if(v14Write(db))alert('Account request submitted. The Super Admin must approve your name before you can log in.');
+  };
+  v15ApproveAccount=function(id){if(!v14IsSuper())return;const db=v14Sync(),r=(db.accountRequests||[]).find(x=>x.id===id);if(!r)return; if(db.users.some(u=>v14NormalizeText(u.fullName)===v14NormalizeText(r.fullName)))return alert('That name already has an account.');const username=r.fullName.toLowerCase().replace(/[^a-z0-9]+/g,'.').replace(/^\.|\.$/g,''),temp=v15TempPassword();db.users.push({id:v14Id('USR'),fullName:r.fullName,username,role:r.role,password:temp,active:true,mustSetPassword:true,createdAt:new Date().toISOString()});r.status='approved';r.approvedBy=V14_STATE.user.fullName;r.approvedAt=new Date().toISOString();r.tempPassword=temp;if(v14Write(db)){alert('Approved. Temporary password for '+r.fullName+': '+temp);v14Users();}};
+  v15RejectAccount=function(id){if(!v14IsSuper())return;const db=v14Sync(),r=(db.accountRequests||[]).find(x=>x.id===id);if(!r)return;r.status='rejected';r.resolvedBy=V14_STATE.user.fullName;r.resolvedAt=new Date().toISOString();if(v14Write(db))v14Users();};
+
+  // User Management: account requests + named accounts.
+  const _oldV14Users=v14Users;
+  v14Users=function(){if(!v14IsSuper())return alert('Super Admin access required.');const db=v14Sync(),q=(document.getElementById('v14UserSearch')?.value||'').toLowerCase(),users=(db.users||[]).filter(u=>[u.fullName,u.username,u.role].some(v=>String(v||'').toLowerCase().includes(q))),pending=(db.accountRequests||[]).filter(r=>r.status==='pending');const rows=users.map(u=>`<div class="v14-list-item"><div class="v14-list-main"><strong>${esc(u.fullName)} ${u.id==='SUPER-MARLEY-KANYINGI'?'<span class="v14-badge">SUPER ADMIN</span>':''}</strong><small>@${esc(u.username)} · ${u.role==='super_admin'?'Super Admin':u.role==='admin'?'Admin':'Medical Rep'} · ${u.active?'ACTIVE':'DISABLED'}${u.mustSetPassword?' · TEMP PASSWORD ACTIVE':''}</small></div><div class="v14-actions">${u.id==='SUPER-MARLEY-KANYINGI'?'<span class="v14-subtle">Protected account</span>':`${u.active?`<button class="btn" onclick="v14UserAction('disable',${v14Arg(u.id)})">Disable</button>`:`<button class="btn" onclick="v14UserAction('enable',${v14Arg(u.id)})">Enable</button>`}<button class="btn" onclick="v14UserAction('reset',${v14Arg(u.id)})">Reset Password</button><button class="btn" onclick="v14UserAction('delete',${v14Arg(u.id)})">Delete</button>`}</div></div>`).join('');const reqs=pending.map(r=>`<div class="v14-list-item"><div class="v14-list-main"><strong>${esc(r.fullName)}</strong><small>${r.role==='admin'?'Admin':'Medical Rep'} · Requested ${new Date(r.requestedAt).toLocaleString()}</small></div><div class="v14-actions"><button class="btn primary" onclick="v15ApproveAccount(${v14Arg(r.id)})">Approve</button><button class="btn" onclick="v15RejectAccount(${v14Arg(r.id)})">Reject</button></div></div>`).join('');document.getElementById('app').innerHTML=`${v14Top('Super Admin • User Management')}<main class="page"><div class="card admin-card" style="padding:20px"><div class="section-head"><div><h1>User Management</h1><p>${users.length} account(s) · ${pending.length} pending account request(s)</p></div><span class="v14-badge">SUPER ADMIN</span></div><div class="v14-actions" style="margin-bottom:14px"><button class="btn primary" onclick="V14_STATE.screen='createUser';v14Render()">+ ADD USER NAME</button></div><input id="v14UserSearch" class="v14-search" type="search" placeholder="Search name, username or role" oninput="v14Users()" value="${esc(q)}">${pending?`<div class="card" style="padding:14px;margin:14px 0"><h3>Pending Account Requests</h3><div class="v14-list">${reqs||'<div class="v14-empty">No pending requests.</div>'}</div></div>`:''}<div class="v14-list">${rows||'<div class="v14-empty">No matching users.</div>'}</div></div></main>`;};
+
+  // Add Registered Clinical Officer without disturbing existing specialties.
+  const _oldAllSpecs=v14AllSpecialties;v14AllSpecialties=function(){const a=_oldAllSpecs();if(!a.some(x=>v14NormalizeText(x.name)==='registered clinical officer'))a.push({name:'Registered Clinical Officer'});return a;};
+
+  // Customer directory helpers: allocation, class and 40-customer cap.
+  v15AllocateCustomer=function(type,id){const db=v14Sync(),arr=type==='hcp'?db.hcps:db.pharmacies,x=arr.find(a=>a.id===id);if(!x)return;if(v14IsSuper()||V14_STATE.user?.role==='admin')return alert('Admin accounts do not need customer allocation.');if(x.ownerUsername&&v14NormalizeUsername(x.ownerUsername)!==v14NormalizeUsername(v15CurrentUsername()))return alert('This customer is already allocated to another Medical Rep.');if(v14NormalizeUsername(x.ownerUsername)===v14NormalizeUsername(v15CurrentUsername()))return alert('This customer is already allocated to you.');if(!v15CanAllocate(v15CurrentUsername()))return alert('You have reached the maximum of 40 HCPs/Pharmacies.');v15Assign(x,V14_STATE.user.username,V14_STATE.user.fullName);if(v14Write(db))v14Render();};
+  function v15VisibleRows(arr){const u=v15CurrentUsername(),admin=v14IsAdmin();return arr.filter(x=>x.status==='approved'&&(admin||!x.ownerUsername||v14NormalizeUsername(x.ownerUsername)===v14NormalizeUsername(u)));}
+  function v15AllocButton(type,x){if(v14IsAdmin())return '';if(v14NormalizeUsername(x.ownerUsername)===v14NormalizeUsername(v15CurrentUsername()))return `<span class="v14-approved">MY CUSTOMER</span>`;if(!x.ownerUsername)return `<button class="btn" onclick="v15AllocateCustomer(${v14Arg(type)},${v14Arg(x.id)})">ALLOCATE TO ME</button>`;return `<span class="v14-subtle">Allocated</span>`;}
+
+  // HCP and pharmacy selection now respects allocation and shows unallocated records.
+  const _oldHCPs=v14HCPs;v14HCPs=function(){const db=v14Sync(),spec=V14_STATE.selectedSpecialty;let rows=v15VisibleRows(db.hcps||[]);if(spec)rows=rows.filter(x=>v14NormalizeText(x.specialty)===v14NormalizeText(spec));const q=(document.getElementById('v14HcpSearch')?.value||'').trim().toLowerCase();if(q)rows=rows.filter(x=>[x.name,x.facility,x.location,x.specialty,x.subSpecialty,x.cadre,x.phone].some(v=>String(v||'').toLowerCase().includes(q)));document.getElementById('app').innerHTML=`${v14Top('Doctor / HCP Selection')}<main class="page">${v14Steps(2)}<div class="section-head"><div><h1>Doctor / HCP</h1><p>${spec?`Approved HCPs under ${esc(spec)}`:'Search the approved HCP directory'} · <strong>${v15AllocatedCount(v15CurrentUsername())}/${V15_MAX_CUSTOMERS}</strong> customers allocated</p></div><span class="v14-count">${rows.length} shown</span></div><input id="v14HcpSearch" class="v14-search" type="search" placeholder="Search name, facility, location, specialty or phone" oninput="v14HCPs()" value="${esc(q)}"><div class="v14-actions" style="margin-bottom:14px"><button class="btn primary" onclick="V14_STATE.screen='otherHcp';v14Render()">+ OTHER HCP / NOT ON LIST</button><button class="btn" onclick="V14_STATE.screen='customer';v14Render()">← Customer Type</button></div>${rows.length?`<div class="v14-list">${rows.map(x=>`<div class="v14-list-item"><div class="v14-list-main"><strong>${esc(x.name)}</strong><small>${esc(x.facility||'')} · ${esc(x.location||'')}</small><small>${esc(x.specialty||'')}${x.subSpecialty&&x.subSpecialty!=='NONE'?` · ${esc(x.subSpecialty)}`:''} · Class ${esc(x.customerClass||'')}</small></div><div class="v14-actions">${v15AllocButton('hcp',x)}${v14NormalizeUsername(x.ownerUsername||'')===v14NormalizeUsername(v15CurrentUsername())||v14IsAdmin()?`<button class="btn primary" onclick="v14SelectHcp(${v14Arg(x.id)})">Select</button>`:''}</div></div>`).join('')}</div>`:'<div class="v14-empty">No approved HCPs available.</div>'}</main>`;};
+  const _oldPh=v14Pharmacies;v14Pharmacies=function(){const db=v14Sync();let rows=v15VisibleRows(db.pharmacies||[]);const q=(document.getElementById('v14PhSearch')?.value||'').trim().toLowerCase();if(q)rows=rows.filter(x=>[x.name,x.type,x.owner,x.phone,x.email,x.location,x.county,x.town,x.distributor].some(v=>String(v||'').toLowerCase().includes(q)));document.getElementById('app').innerHTML=`${v14Top('Pharmacy Selection')}<main class="page">${v14Steps(2)}<div class="section-head"><div><h1>Pharmacy / Pharmacist</h1><p>Approved pharmacy directory · <strong>${v15AllocatedCount(v15CurrentUsername())}/${V15_MAX_CUSTOMERS}</strong> customers allocated</p></div><span class="v14-count">${rows.length} shown</span></div><input id="v14PhSearch" class="v14-search" type="search" placeholder="Search pharmacy, town, county, owner, phone or distributor" oninput="v14Pharmacies()" value="${esc(q)}"><div class="v14-actions" style="margin-bottom:14px"><button class="btn primary" onclick="V14_STATE.screen='otherPharmacy';v14Render()">+ OTHER PHARMACY / NOT ON LIST</button><button class="btn" onclick="V14_STATE.screen='customer';v14Render()">← Customer Type</button></div>${rows.length?`<div class="v14-list">${rows.map(x=>`<div class="v14-list-item"><div class="v14-list-main"><strong>${esc(x.name)}</strong><small>${esc(x.type||'Pharmacy')} · ${esc(x.location||'')}, ${esc(x.town||'')}, ${esc(x.county||'')}</small><small>${esc(x.owner||'')} ${x.phone?`· ${esc(x.phone)}`:''} · Class ${esc(x.customerClass||'')}</small></div><div class="v14-actions">${v15AllocButton('pharmacy',x)}${v14NormalizeUsername(x.ownerUsername||'')===v14NormalizeUsername(v15CurrentUsername())||v14IsAdmin()?`<button class="btn primary" onclick="v14SelectPharmacy(${v14Arg(x.id)})">Select</button>`:''}</div></div>`).join('')}</div>`:'<div class="v14-empty">No approved pharmacies available.</div>'}</main>`;};
+
+  // Other-customer entry: username is attached automatically to the current rep and class is required.
+  v14OtherHCP=function(){const specs=v14ViableSpecialties();document.getElementById('app').innerHTML=`${v14Top('Other HCP Request')}<main class="page">${v14Steps(2)}<div class="card form-card"><div class="section-head"><div><h1>OTHER HCP / NOT ON LIST</h1><p>Add a customer not yet in the approved directory.</p></div></div><div class="v14-formgrid"><div class="v14-field"><label>HCP Name *</label><input id="v14HName" type="text"></div><div class="v14-field"><label>Facility / Institution *</label><input id="v14HFacility" type="text"></div><div class="v14-field"><label>Specialty *</label><select id="v14HSpec">${specs.map(s=>`<option>${esc(s.name)}</option>`).join('')}</select></div><div class="v14-field"><label>Sub-Specialty</label><input id="v14HSub" type="text"></div><div class="v14-field"><label>Location</label><input id="v14HLoc" type="text"></div><div class="v14-field"><label>Phone</label><input id="v14HPhone" type="text"></div><div class="v14-field"><label>Class *</label>${v15ClassSelect('v15HClass','')}</div></div><div style="margin-top:14px"><label>Username</label><input value="${esc(V14_STATE.user?.fullName||'')}" disabled></div><div style="margin-top:14px"><label>Notes</label><textarea id="v14HNotes" rows="3"></textarea></div><div class="form-actions"><button class="btn" onclick="V14_STATE.screen='hpcs';v14Render()">← Back</button><button class="btn primary" onclick="v15SubmitHcp()">Submit & Continue</button></div></div></main>`;};
+  v15SubmitHcp=function(){const c={name:document.getElementById('v14HName').value.trim(),facility:document.getElementById('v14HFacility').value.trim(),specialty:document.getElementById('v14HSpec').value,subSpecialty:document.getElementById('v14HSub').value.trim(),location:document.getElementById('v14HLoc').value.trim(),phone:document.getElementById('v14HPhone').value.trim(),customerClass:document.getElementById('v15HClass').value};if(!c.name||!c.facility||!c.customerClass)return alert('HCP Name, Facility and Class are required.');if(!v15CanAllocate(v15CurrentUsername()))return alert('You have reached the maximum of 40 HCPs/Pharmacies.');const db=v14Sync(),req={id:v14Id('HCPREQ'),...c,status:'pending',submittedBy:V14_STATE.user.fullName,submittedAt:new Date().toISOString(),ownerUsername:V14_STATE.user.username,ownerName:V14_STATE.user.fullName};db.hcpRequests.unshift(req);if(v14Write(db)){V14_STATE.customer={type:'Doctor / HCP',id:req.id,name:req.name,facility:req.facility,location:req.location,source:'Other / Pending',specialty:req.specialty,subSpecialty:req.subSpecialty};V14_STATE.selectedSpecialty=req.specialty;V14_STATE.candidates=v14ProductCandidates(req.specialty);V14_STATE.selected=[];V14_STATE.screen='products';v14Render();}};
+
+  v14OtherPharmacy=function(){document.getElementById('app').innerHTML=`${v14Top('Other Pharmacy Request')}<main class="page">${v14Steps(2)}<div class="card form-card"><div class="section-head"><div><h1>OTHER PHARMACY / NOT ON LIST</h1><p>Add a customer not yet in the approved directory.</p></div></div><div class="v14-formgrid"><div class="v14-field"><label>Pharmacy Name *</label><input id="v14PName" type="text"></div><div class="v14-field"><label>Pharmacy Type</label><input id="v14PType" type="text"></div><div class="v14-field"><label>Owner / Contact Person</label><input id="v14POwner" type="text"></div><div class="v14-field"><label>Phone</label><input id="v14PPhone" type="text"></div><div class="v14-field"><label>Email</label><input id="v14PEmail" type="email"></div><div class="v14-field"><label>Physical Location</label><input id="v14PLocation" type="text"></div><div class="v14-field"><label>County</label><input id="v14PCounty" type="text"></div><div class="v14-field"><label>Town</label><input id="v14PTown" type="text"></div><div class="v14-field"><label>Buying Distributor</label><input id="v14PDist" type="text"></div><div class="v14-field"><label>Class *</label>${v15ClassSelect('v15PClass','')}</div></div><div style="margin-top:14px"><label>Username</label><input value="${esc(V14_STATE.user?.fullName||'')}" disabled></div><div style="margin-top:14px"><label>Notes</label><textarea id="v14PNotes" rows="3"></textarea></div><div class="form-actions"><button class="btn" onclick="V14_STATE.screen='pharmacies';v14Render()">← Back</button><button class="btn primary" onclick="v15SubmitPharmacy()">Submit & Continue</button></div></div></main>`;};
+  v15SubmitPharmacy=function(){const c={name:document.getElementById('v14PName').value.trim(),type:document.getElementById('v14PType').value.trim(),owner:document.getElementById('v14POwner').value.trim(),phone:document.getElementById('v14PPhone').value.trim(),email:document.getElementById('v14PEmail').value.trim(),location:document.getElementById('v14PLocation').value.trim(),county:document.getElementById('v14PCounty').value.trim(),town:document.getElementById('v14PTown').value.trim(),distributor:document.getElementById('v14PDist').value.trim(),customerClass:document.getElementById('v15PClass').value,notes:document.getElementById('v14PNotes').value.trim()};if(!c.name||!c.customerClass)return alert('Pharmacy Name and Class are required.');if(!v15CanAllocate(v15CurrentUsername()))return alert('You have reached the maximum of 40 HCPs/Pharmacies.');const db=v14Sync(),req={id:v14Id('PHREQ'),...c,status:'pending',submittedBy:V14_STATE.user.fullName,submittedAt:new Date().toISOString(),ownerUsername:V14_STATE.user.username,ownerName:V14_STATE.user.fullName};db.pharmacyRequests.unshift(req);if(v14Write(db)){V14_STATE.customer={type:'Pharmacy',id:req.id,name:req.name,facility:req.name,location:[req.location,req.town,req.county].filter(Boolean).join(', '),source:'Other / Pending',specialty:V14_STATE.selectedSpecialty||V14_STATE.audience||'Pharmacy Call',subSpecialty:''};V14_STATE.selected=[];V14_STATE.candidates=V14_STATE.audience==='Pharmacist'?v14AllProducts():v14ProductCandidates(V14_STATE.selectedSpecialty);V14_STATE.screen='products';v14Render();}};
+
+  // Joint field work immediately after notes, with all active usernames including Super Admin.
+  const _oldComplete=v14Complete;v14Complete=function(){const db=v14Sync();document.getElementById('app').innerHTML=`${v14Top('Call Report')}<main class="page">${v14Steps(5)}<div class="card form-card"><div class="section-head"><div><h1>Medical Detailing Completed</h1><p>Review the call information and save the report.</p></div></div><div class="v14-success"><strong>${esc(V14_STATE.session.customer?.name||'Customer')}</strong><br>${esc(V14_STATE.session.customer?.type||'')} · ${esc(V14_STATE.session.specialty||'')}</div><div class="v14-formgrid" style="margin-top:14px"><div><label>Customer</label><div class="v14-subtle">${esc(V14_STATE.session.customer?.name||'')}</div></div><div><label>Customer Type</label><div class="v14-subtle">${esc(V14_STATE.session.customer?.type||'')}</div></div><div><label>Facility</label><div class="v14-subtle">${esc(V14_STATE.session.customer?.facility||'')}</div></div><div><label>Location</label><div class="v14-subtle">${esc(V14_STATE.session.customer?.location||'')}</div></div><div><label>Specialty / Audience</label><div class="v14-subtle">${esc(V14_STATE.session.specialty||'')}</div></div><div><label>Products</label><div class="v14-subtle">${V14_STATE.session.products.map(esc).join(', ')}</div></div></div><div style="margin-top:14px"><label>Visit Outcome</label><select id="v14Outcome"><option>Product information presented</option><option>Follow-up required</option><option>Order / stock discussion</option><option>No further action</option><option>Other</option></select></div><div style="margin-top:14px"><label>Notes</label><textarea id="v14ReportNotes" rows="3"></textarea></div><div style="margin-top:14px"><label>Joint Field Work</label><select id="v15Joint"><option value="">No Joint Field Work</option>${v15UserOptions('',true)}</select></div><div class="form-actions"><button class="btn" onclick="V14_STATE.screen='detail';v14Render()">← Back to detailing</button><button class="btn primary" onclick="v15SaveReport()">SAVE CALL REPORT</button></div></div></main>`;};
+  v15SaveReport=function(){const db=v14Sync(),joint=document.getElementById('v15Joint')?.value||'',ju=v15UserByNameOrUsername(joint);db.reports.unshift({id:v14Id('RPT'),rep:V14_STATE.session.rep,customerType:V14_STATE.session.customer?.type||'',customerId:V14_STATE.session.customer?.id||'',customerName:V14_STATE.session.customer?.name||'',facility:V14_STATE.session.customer?.facility||'',location:V14_STATE.session.customer?.location||'',specialty:V14_STATE.session.specialty||'',audience:V14_STATE.session.audience||'',products:[...V14_STATE.session.products],customerSource:V14_STATE.session.customer?.source||'',startedAt:V14_STATE.session.startedAt,endedAt:V14_STATE.session.endedAt,durationSec:V14_STATE.session.durationSec||0,outcome:document.getElementById('v14Outcome').value,notes:document.getElementById('v14ReportNotes').value.trim(),jointFieldWorkUsername:joint,jointFieldWorkName:ju?.fullName||''});if(v14Write(db)){alert('Call report saved.');V14_STATE.screen='mr';V14_STATE.customer=null;V14_STATE.selected=[];V14_STATE.candidates=[];v14Render();}};
+
+  // Bulk import: Username + Class; unmatched usernames remain unallocated; allocation honours 40-cap.
+  v14BulkImport=function(){if(!v14IsSuper())return alert('Super Admin access required.');document.getElementById('app').innerHTML=`${v14Top('Bulk HCP / Pharmacy Import')}<main class="page"><div class="card" style="padding:20px"><div class="section-head"><div><h1>Bulk HCP / Pharmacy Import</h1><p>Paste Excel data. Username and Class columns are supported.</p></div><span class="v14-badge">SUPER ADMIN</span></div><div class="v14-warning"><strong>Pharmacy headers:</strong> Pharmacy Name, Type, Owner/Contact, Location, County, Town, Phone, Email, Distributor, Username, Class.<br><strong>HCP headers:</strong> HCP Name, Facility, Specialty, Sub-Specialty, Location, Phone, Email, Username, Class.<br>Username must match a user name or username in User Management. Otherwise the record remains <strong>UNALLOCATED</strong>.</div><div style="margin-top:14px"><label>Record Type</label><select id="v15ImportType"><option value="pharmacy">Pharmacy</option><option value="hcp">HCP</option></select></div><div style="margin-top:14px"><label>Paste Excel Data</label><textarea id="v15ImportData" rows="18" placeholder="Copy cells from Excel and paste here..."></textarea></div><div class="form-actions"><button class="btn" onclick="V14_STATE.screen='admin';v14Render()">← Back</button><button class="btn primary" onclick="v15RunImport2()">IMPORT</button></div></div></main>`;};
+  v15RunImport2=function(){const type=document.getElementById('v15ImportType').value,rows=v15Rows(document.getElementById('v15ImportData').value);if(!rows.length)return alert('Paste at least a header row and one data row.');const headers=rows[0].map(v15Header),idx=(...names)=>{for(const n of names){const i=headers.indexOf(v15Header(n));if(i>=0)return i;}return -1;},val=(r,...names)=>{const i=idx(...names);return i>=0?String(r[i]||'').trim():''};const db=v14Sync();let added=0,unallocated=0,skipped=0;rows.slice(1).forEach(r=>{const rawUser=val(r,'Username','User Name','Rep Username','Medical Rep'),u=v15UserByNameOrUsername(rawUser),cls=val(r,'Class','Customer Class').toUpperCase();if(cls&&!['A','B','C'].includes(cls)){skipped++;return;}if(type==='pharmacy'){const x={id:v14Id('PH'),name:val(r,'Pharmacy Name','Pharmacy','Name'),type:val(r,'Type','Pharmacy Type'),owner:val(r,'Owner/Contact','Owner','Contact Person'),location:val(r,'Location','Physical Location'),county:val(r,'County'),town:val(r,'Town'),phone:val(r,'Phone','Telephone','Mobile'),email:val(r,'Email','E-mail'),distributor:val(r,'Distributor','Buying Distributor'),customerClass:cls,status:'approved',source:'Bulk Excel Import',approvedBy:V14_STATE.user.fullName,approvedAt:new Date().toISOString()};if(!x.name){skipped++;return;}if(u&&u.role==='rep'&&v15CanAllocate(u.username))v15Assign(x,u.username,u.fullName);else if(u&&u.role==='rep')unallocated++;else if(rawUser)unallocated++;db.pharmacies.unshift(x);added++;}else{const x={id:v14Id('HCP'),name:val(r,'HCP Name','Doctor Name','Name'),facility:val(r,'Facility','Institution','Hospital'),specialty:val(r,'Specialty'),subSpecialty:val(r,'Sub-Specialty','Sub Specialty','Subspecialty'),location:val(r,'Location'),phone:val(r,'Phone','Telephone','Mobile'),email:val(r,'Email','E-mail'),customerClass:cls,status:'approved',source:'Bulk Excel Import',approvedBy:V14_STATE.user.fullName,approvedAt:new Date().toISOString()};if(!x.name||!x.facility){skipped++;return;}if(u&&u.role==='rep'&&v15CanAllocate(u.username))v15Assign(x,u.username,u.fullName);else if(u&&u.role==='rep')unallocated++;else if(rawUser)unallocated++;db.hcps.unshift(x);added++;}});db.dataImportLog=db.dataImportLog||[];db.dataImportLog.unshift({id:v14Id('IMPORT'),type,added,unallocated,skipped,importedBy:V14_STATE.user.fullName,importedAt:new Date().toISOString()});if(v14Write(db)){alert('Import complete. Added '+added+' record(s). Unallocated: '+unallocated+'. Skipped: '+skipped+'.');V14_STATE.screen='directories';v14Render();}};
+
+  // Approved-request records retain allocation/class information.
+  const _oldResolve=v14ResolveRequest;v14ResolveRequest=function(type,id,action){const db=v14Sync(),arr=type==='hcp'?db.hcpRequests:db.pharmacyRequests,req=arr.find(r=>r.id===id);if(!req)return;if(action==='reject'){req.status='rejected';req.resolvedBy=V14_STATE.user.fullName;req.resolvedAt=new Date().toISOString();v14Write(db);return v14ApprovalQueues();}req.status='approved';req.resolvedBy=V14_STATE.user.fullName;req.resolvedAt=new Date().toISOString();if(type==='hcp')db.hcps.unshift({...req,status:'approved',approvedAt:req.resolvedAt,approvedBy:req.resolvedBy,source:'Approved Request'});else db.pharmacies.unshift({...req,status:'approved',approvedAt:req.resolvedAt,approvedBy:req.resolvedBy,source:'Approved Request'});if(v14Write(db))v14ApprovalQueues();};
+
+  // Directories show allocation and class to Admin/Super Admin.
+  v14Directories=function(){if(!v14IsAdmin())return alert('Admin access required.');const db=v14Sync(),hcps=(db.hcps||[]).filter(x=>x.status==='approved'),ph=(db.pharmacies||[]).filter(x=>x.status==='approved');document.getElementById('app').innerHTML=`${v14Top('Customer Directories')}<main class="page"><div class="card" style="padding:18px;margin-bottom:16px"><div class="section-head"><div><h1>Approved HCP Directory</h1><p>${hcps.length} approved HCP(s).</p></div></div><div class="v14-table-wrap"><table class="v14-table"><thead><tr><th>Name</th><th>Facility</th><th>Specialty</th><th>Class</th><th>Username / Allocation</th></tr></thead><tbody>${hcps.map(x=>`<tr><td>${esc(x.name)}</td><td>${esc(x.facility)}</td><td>${esc(x.specialty)}</td><td>${esc(x.customerClass||'')}</td><td>${esc(x.ownerName||'UNALLOCATED')}</td></tr>`).join('')||'<tr><td colspan="5">No approved HCPs.</td></tr>'}</tbody></table></div></div><div class="card" style="padding:18px"><div class="section-head"><div><h1>Approved Pharmacy Directory</h1><p>${ph.length} approved pharmacy(ies).</p></div></div><div class="v14-table-wrap"><table class="v14-table"><thead><tr><th>Pharmacy</th><th>Type</th><th>Town</th><th>Class</th><th>Username / Allocation</th></tr></thead><tbody>${ph.map(x=>`<tr><td>${esc(x.name)}</td><td>${esc(x.type||'')}</td><td>${esc(x.town||'')}</td><td>${esc(x.customerClass||'')}</td><td>${esc(x.ownerName||'UNALLOCATED')}</td></tr>`).join('')||'<tr><td colspan="5">No approved pharmacies.</td></tr>'}</tbody></table></div></div><div class="form-actions"><button class="btn" onclick="V14_STATE.screen='admin';v14Render()">← Back</button></div></main>`;};
+
+  v14Sync();
+  
+  // Ensure all existing users are upgraded with status, without touching navigation.
+  v14Sync();
+})();
+</script>
+
 </body>
 </html>
